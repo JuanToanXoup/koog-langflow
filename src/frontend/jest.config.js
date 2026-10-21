@@ -45,6 +45,9 @@ module.exports = {
       "<rootDir>/src/__mocks__/@jsonquerylang/jsonquery.js",
     "^vanilla-jsoneditor$": "<rootDir>/src/__mocks__/vanilla-jsoneditor.js",
     "^uuid$": "<rootDir>/src/__mocks__/uuid.js",
+    // ESM bundle (lit, katex, streamdown) Jest's CJS runtime cannot load; see the mock.
+    "^@copilotkit/react-core/v2$":
+      "<rootDir>/src/__mocks__/@copilotkit/react-core-v2.tsx",
   },
   setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
   setupFiles: ["<rootDir>/jest.setup.js"],

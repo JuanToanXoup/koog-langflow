@@ -3,6 +3,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
 import { useBlocker, useParams } from "react-router-dom";
 import { AssistantPanel } from "@/components/core/assistantPanel";
+import { CopilotProvider } from "@/components/core/copilotChat/copilot-provider";
 import { FlowPageSlidingContainerContent } from "@/components/core/playgroundComponent/sliding-container/components/flow-page-sliding-container";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import {
@@ -314,53 +315,57 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
                 inert={isSlidingContainerOpen && isFullscreen}
                 aria-hidden={isSlidingContainerOpen && isFullscreen}
               >
-                <SidebarProvider
-                  width="17.5rem"
-                  defaultOpen={!isMobile}
-                  segmentedSidebar={ENABLE_NEW_SIDEBAR}
-                >
-                  {/* Assistant Panel — single instance, mounted INSIDE the
+                {/* One CopilotKit runtime connection for the assistant chat and
+                  anything on the canvas that talks to its agents. */}
+                <CopilotProvider>
+                  <SidebarProvider
+                    width="17.5rem"
+                    defaultOpen={!isMobile}
+                    segmentedSidebar={ENABLE_NEW_SIDEBAR}
+                  >
+                    {/* Assistant Panel — single instance, mounted INSIDE the
                     SidebarProvider so it can read sidebar open state via
                     ``useSidebar`` and shift its horizontal position when the
                     sidebar slides off-canvas. */}
-                  <AssistantPanel
-                    isOpen={assistantOpen}
-                    onClose={() => setAssistantOpen(false)}
-                  />
-                  <FlowSearchProvider>
-                    {/* FlowSidebarComponent - stays in place. Wrapped in a
+                    <AssistantPanel
+                      isOpen={assistantOpen}
+                      onClose={() => setAssistantOpen(false)}
+                    />
+                    <FlowSearchProvider>
+                      {/* FlowSidebarComponent - stays in place. Wrapped in a
                       ``display: none`` container while the welcome is open
                       so it never paints on first render (and never flashes
                       while the welcome's open-effect catches up). The
                       wrapper uses ``display: contents`` when visible so it
                       doesn't break the parent flex layout. */}
-                    {!view && (
-                      <div
-                        style={{
-                          display: isWelcomeOpen ? "none" : "contents",
-                        }}
-                      >
-                        <FlowSidebarComponent isLoading={isLoading} />
-                      </div>
-                    )}
-
-                    <main
-                      className={cn(
-                        "flex flex-1 min-w-0 overflow-hidden transition-all duration-300",
-                        isSlidingContainerOpen &&
-                          !isFullscreen &&
-                          "rounded-xl m-2 mr-0",
+                      {!view && (
+                        <div
+                          style={{
+                            display: isWelcomeOpen ? "none" : "contents",
+                          }}
+                        >
+                          <FlowSidebarComponent isLoading={isLoading} />
+                        </div>
                       )}
-                    >
-                      <div className="h-full w-full">
-                        <FlowPageMainContent
-                          flowId={id}
-                          setIsLoading={setIsLoading}
-                        />
-                      </div>
-                    </main>
-                  </FlowSearchProvider>
-                </SidebarProvider>
+
+                      <main
+                        className={cn(
+                          "flex flex-1 min-w-0 overflow-hidden transition-all duration-300",
+                          isSlidingContainerOpen &&
+                            !isFullscreen &&
+                            "rounded-xl m-2 mr-0",
+                        )}
+                      >
+                        <div className="h-full w-full">
+                          <FlowPageMainContent
+                            flowId={id}
+                            setIsLoading={setIsLoading}
+                          />
+                        </div>
+                      </main>
+                    </FlowSearchProvider>
+                  </SidebarProvider>
+                </CopilotProvider>
               </div>
               <SimpleSidebar resizable={!isFullscreen} className="h-full">
                 <FlowPageSlidingContainerContent
