@@ -1,0 +1,500 @@
+/*
+ * The assistant chat at VS Code's Copilot Chat dimensions.
+ *
+ * CopilotKit's stock CopilotChat is styled like a consumer chat app: 16px prose
+ * at line-height 1.75 in a 65ch column, rounded message bubbles, a 28px-radius
+ * input pill. In a 480px pane that reads chunky and sparse. Every number here is
+ * taken from VS Code's chat stylesheets (src/vs/workbench/contrib/chat/browser/
+ * widget/media/chat.css and chatContentParts/media/codeBlockPart.css) at their
+ * 13px base font, with VS Code's colour tokens mapped onto Langflow's theme
+ * tokens so light and dark both follow the app.
+ *
+ * Selectors hang off CopilotKit's data-testid hooks and Streamdown's
+ * data-streamdown markers, which are the stable surface its DOM exposes.
+ * CopilotKit's own utilities live in an @layer, so these unlayered rules win
+ * without !important.
+ */
+
+.lf-copilot-chat {
+  /* --vscode-chat-font-size-body-{xs,s,m,l,xl,xxl} at a 13px base. */
+  --lf-chat-text-xs: 11px;
+  --lf-chat-text-s: 12px;
+  --lf-chat-text-m: 13px;
+  --lf-chat-text-l: 14px;
+  --lf-chat-text-xl: 16px;
+  --lf-chat-text-xxl: 20px;
+  /* --vscode-cornerRadius-{small,medium,large}. */
+  --lf-chat-radius-small: 4px;
+  --lf-chat-radius-medium: 6px;
+  --lf-chat-radius-large: 8px;
+  /* --vscode-strokeThickness. */
+  --lf-chat-stroke: 1px;
+  /* chat.editor.fontSize / chat.editor.lineHeight defaults. */
+  --lf-chat-code-size: 12px;
+  --lf-chat-code-line-height: 18px;
+  /* --vscode-textLink-foreground. */
+  --lf-chat-link: hsl(var(--accent-blue-foreground));
+
+  font-size: var(--lf-chat-text-m);
+  line-height: 1.5em;
+}
+
+/* ---------------------------------------------------------------------------
+ * Message rows (.interactive-item-container: padding size60 size160)
+ * The horizontal 16px comes from CopilotKit's own content wrapper.
+ * ------------------------------------------------------------------------- */
+
+.lf-copilot-chat [data-testid="copilot-assistant-message"] {
+  padding: 6px 0;
+}
+
+.lf-copilot-chat [data-testid="copilot-user-message"] {
+  /* Replaces CopilotKit's 40px top gap before each user turn. */
+  padding: 6px 0 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Response body (.interactive-item-container .value .rendered-markdown)
+ * ------------------------------------------------------------------------- */
+
+.lf-copilot-chat .cpk\:prose {
+  max-width: none;
+  font-size: var(--lf-chat-text-m);
+  line-height: 1.5em;
+  color: hsl(var(--foreground));
+  --tw-prose-body: hsl(var(--foreground));
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--muted-foreground));
+  --tw-prose-links: var(--lf-chat-link);
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--muted-foreground));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--border));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-kbd: hsl(var(--foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-pre-code: hsl(var(--foreground));
+  --tw-prose-pre-bg: hsl(var(--muted));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+  --tw-prose-invert-body: var(--tw-prose-body);
+  --tw-prose-invert-headings: var(--tw-prose-headings);
+  --tw-prose-invert-lead: var(--tw-prose-lead);
+  --tw-prose-invert-links: var(--tw-prose-links);
+  --tw-prose-invert-bold: var(--tw-prose-bold);
+  --tw-prose-invert-counters: var(--tw-prose-counters);
+  --tw-prose-invert-bullets: var(--tw-prose-bullets);
+  --tw-prose-invert-hr: var(--tw-prose-hr);
+  --tw-prose-invert-quotes: var(--tw-prose-quotes);
+  --tw-prose-invert-quote-borders: var(--tw-prose-quote-borders);
+  --tw-prose-invert-captions: var(--tw-prose-captions);
+  --tw-prose-invert-kbd: var(--tw-prose-kbd);
+  --tw-prose-invert-code: var(--tw-prose-code);
+  --tw-prose-invert-pre-code: var(--tw-prose-pre-code);
+  --tw-prose-invert-pre-bg: var(--tw-prose-pre-bg);
+  --tw-prose-invert-th-borders: var(--tw-prose-th-borders);
+  --tw-prose-invert-td-borders: var(--tw-prose-td-borders);
+}
+
+.lf-copilot-chat .cpk\:prose > :first-child {
+  margin-top: 0;
+}
+
+.lf-copilot-chat .cpk\:prose > :last-child {
+  margin-bottom: 0;
+}
+
+/* p { margin: 0 0 16px 0 } */
+.lf-copilot-chat .cpk\:prose p {
+  margin: 0 0 16px;
+}
+
+/* Streamdown wraps the blocks in a Tailwind ``space-y-4`` div, which adds a
+   16px top margin to every block after the first. Blocks here carry their own
+   16px bottom margin, so drop the top one; the last block ends flush. */
+.lf-copilot-chat .cpk\:prose > .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.lf-copilot-chat .cpk\:prose > .space-y-4 > :not([hidden]) ~ :last-child {
+  margin-bottom: 0;
+}
+
+/* ul 24px, ol 28px indent; li 4px apart; paragraphs inside items flush. */
+.lf-copilot-chat .cpk\:prose ul,
+.lf-copilot-chat .cpk\:prose ol {
+  margin: 0 0 16px;
+}
+
+.lf-copilot-chat .cpk\:prose ul {
+  padding-inline-start: 24px;
+}
+
+.lf-copilot-chat .cpk\:prose ol {
+  padding-inline-start: 28px;
+}
+
+.lf-copilot-chat .cpk\:prose li {
+  margin: 4px 0;
+  padding-inline-start: 0;
+}
+
+.lf-copilot-chat .cpk\:prose li > p,
+.lf-copilot-chat .cpk\:prose li > ul,
+.lf-copilot-chat .cpk\:prose li > ol {
+  margin: 0;
+}
+
+.lf-copilot-chat .cpk\:prose li::marker {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Headings: xxl / xl / l, semibold, margin 1.5em 0 0.875em, normal line-height. */
+.lf-copilot-chat .cpk\:prose h1,
+.lf-copilot-chat .cpk\:prose h2,
+.lf-copilot-chat .cpk\:prose h3,
+.lf-copilot-chat .cpk\:prose h4,
+.lf-copilot-chat .cpk\:prose h5,
+.lf-copilot-chat .cpk\:prose h6 {
+  font-weight: 600;
+  line-height: normal;
+  margin: 1.5em 0 0.875em;
+}
+
+.lf-copilot-chat .cpk\:prose h1 {
+  font-size: var(--lf-chat-text-xxl);
+}
+
+.lf-copilot-chat .cpk\:prose h2 {
+  font-size: var(--lf-chat-text-xl);
+}
+
+.lf-copilot-chat .cpk\:prose h3 {
+  font-size: var(--lf-chat-text-l);
+}
+
+.lf-copilot-chat .cpk\:prose h4,
+.lf-copilot-chat .cpk\:prose h5,
+.lf-copilot-chat .cpk\:prose h6 {
+  font-size: var(--lf-chat-text-m);
+}
+
+.lf-copilot-chat .cpk\:prose a {
+  color: var(--lf-chat-link);
+  text-decoration: none;
+  font-weight: inherit;
+}
+
+.lf-copilot-chat .cpk\:prose a:hover {
+  text-decoration: underline;
+}
+
+.lf-copilot-chat .cpk\:prose strong {
+  font-weight: 600;
+}
+
+/* Inline code: monospace at body-xs, 2px 4px, small radius, hairline border. */
+.lf-copilot-chat .cpk\:prose :not(pre) > code {
+  font-family: var(--font-mono), ui-monospace, Menlo, Consolas, monospace;
+  font-size: var(--lf-chat-text-xs);
+  font-weight: 400;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--muted));
+  border: var(--lf-chat-stroke) solid hsl(var(--border));
+  border-radius: var(--lf-chat-radius-small);
+  padding: 2px 4px;
+  white-space: pre-wrap;
+}
+
+.lf-copilot-chat .cpk\:prose code::before,
+.lf-copilot-chat .cpk\:prose code::after,
+.lf-copilot-chat .cpk\:prose blockquote p::before,
+.lf-copilot-chat .cpk\:prose blockquote p::after {
+  content: none;
+}
+
+/* Code blocks (.interactive-result-code-block): medium radius, 16px below. */
+.lf-copilot-chat [data-streamdown="code-block"] {
+  margin: 0 0 16px;
+  border: var(--lf-chat-stroke) solid hsl(var(--border));
+  border-radius: var(--lf-chat-radius-medium);
+  overflow: hidden;
+  background-color: hsl(var(--muted));
+}
+
+.lf-copilot-chat [data-streamdown="code-block-header"] {
+  min-height: 22px;
+  padding: 0 4px 0 10px;
+  font-size: var(--lf-chat-text-xs);
+  color: hsl(var(--muted-foreground));
+  background-color: transparent;
+  border-bottom: var(--lf-chat-stroke) solid hsl(var(--border));
+}
+
+.lf-copilot-chat [data-streamdown="code-block-header"] button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: var(--lf-chat-radius-small);
+}
+
+.lf-copilot-chat [data-streamdown="code-block-header"] svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lf-copilot-chat [data-streamdown="code-block-body"] {
+  background-color: transparent;
+}
+
+.lf-copilot-chat [data-streamdown="code-block-body"] pre,
+.lf-copilot-chat .cpk\:prose pre {
+  margin: 0;
+  padding: 10px 8px;
+  font-family: var(--font-mono), ui-monospace, Menlo, Consolas, monospace;
+  font-size: var(--lf-chat-code-size);
+  line-height: var(--lf-chat-code-line-height);
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.lf-copilot-chat .cpk\:prose pre code {
+  font-size: inherit;
+  line-height: inherit;
+  border: 0;
+  padding: 0;
+  background: none;
+}
+
+/* Streamdown puts a copy/download row above every table. VS Code has no such
+   row, so it becomes a hover toolbar in the table's top-right corner. */
+.lf-copilot-chat div[data-streamdown="table-wrapper"] {
+  position: relative;
+  margin: 0 0 16px;
+}
+
+.lf-copilot-chat
+  div[data-streamdown="table-wrapper"]
+  > :not([hidden])
+  ~ :not([hidden]) {
+  margin-top: 0;
+}
+
+.lf-copilot-chat
+  div[data-streamdown="table-wrapper"]
+  > div:not(.overflow-x-auto) {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 1;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.lf-copilot-chat
+  div[data-streamdown="table-wrapper"]:hover
+  > div:not(.overflow-x-auto),
+.lf-copilot-chat
+  div[data-streamdown="table-wrapper"]
+  > div:not(.overflow-x-auto):focus-within {
+  opacity: 1;
+}
+
+.lf-copilot-chat div[data-streamdown="table-wrapper"] button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: var(--lf-chat-radius-small);
+  background-color: hsl(var(--background));
+}
+
+.lf-copilot-chat div[data-streamdown="table-wrapper"] button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lf-copilot-chat div[data-streamdown="table-wrapper"] table {
+  margin: 0;
+}
+
+/* Streamdown colours tokens for dark mode with Tailwind v4's ``dark:text-(--shiki-dark)``,
+   which this app's Tailwind v3 build never emits; read the variable directly. */
+.dark .lf-copilot-chat
+  [data-streamdown="code-block-body"]
+  span[style*="--shiki-dark"] {
+  /* Beats the light-theme colour Streamdown writes inline on each token. */
+  color: var(--shiki-dark) !important;
+}
+
+/* Tables: separate borders inside one rounded hairline frame, cells 4px 6px. */
+.lf-copilot-chat .cpk\:prose table {
+  margin: 0 0 16px;
+  font-size: var(--lf-chat-text-m);
+  line-height: 1.5em;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: var(--lf-chat-stroke) solid hsl(var(--border));
+  border-radius: var(--lf-chat-radius-medium);
+  overflow: hidden;
+}
+
+.lf-copilot-chat .cpk\:prose th,
+.lf-copilot-chat .cpk\:prose td {
+  padding: 4px 6px;
+  border: var(--lf-chat-stroke) solid hsl(var(--border));
+  border-top: none;
+  border-left: none;
+  vertical-align: top;
+}
+
+.lf-copilot-chat .cpk\:prose th {
+  font-weight: 600;
+  background-color: hsl(var(--muted));
+}
+
+.lf-copilot-chat .cpk\:prose tr > :last-child {
+  border-right: none;
+}
+
+.lf-copilot-chat .cpk\:prose tbody tr:last-child > * {
+  border-bottom: none;
+}
+
+.lf-copilot-chat .cpk\:prose blockquote {
+  margin: 0 7px 16px 5px;
+  padding: 0 16px 0 10px;
+  border-left: 5px solid hsl(var(--border));
+  font-style: normal;
+  font-weight: inherit;
+  color: hsl(var(--foreground));
+}
+
+.lf-copilot-chat .cpk\:prose hr {
+  margin: 16px 0;
+  border-color: hsl(var(--border) / 0.33);
+}
+
+.lf-copilot-chat .cpk\:prose img {
+  max-width: 100%;
+  margin: 0 0 16px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Request (user) turn: a right-aligned bubble, medium radius, 8px 12px, ≤90%.
+ * ------------------------------------------------------------------------- */
+
+.lf-copilot-chat [data-testid="copilot-user-message"] .cpk\:prose {
+  display: block;
+  width: fit-content;
+  max-width: 90%;
+  margin: 0 0 6px auto;
+  padding: 8px 12px;
+  border-radius: var(--lf-chat-radius-medium);
+  background-color: hsl(var(--muted));
+  font-size: var(--lf-chat-text-m);
+  line-height: 1.5em;
+}
+
+/* ---------------------------------------------------------------------------
+ * Per-message toolbars: 22px actions with 16px icons, shown on hover.
+ * ------------------------------------------------------------------------- */
+
+.lf-copilot-chat [data-testid="copilot-assistant-toolbar"],
+.lf-copilot-chat [data-testid="copilot-user-toolbar"] {
+  margin: 2px 0 0;
+  gap: 2px;
+}
+
+.lf-copilot-chat [data-testid="copilot-assistant-toolbar"] {
+  margin-left: -3px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.lf-copilot-chat
+  [data-testid="copilot-assistant-message"]:hover
+  [data-testid="copilot-assistant-toolbar"],
+.lf-copilot-chat [data-testid="copilot-assistant-toolbar"]:focus-within {
+  opacity: 1;
+}
+
+.lf-copilot-chat [data-testid="copilot-assistant-toolbar"] button,
+.lf-copilot-chat [data-testid="copilot-user-toolbar"] button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: var(--lf-chat-radius-small);
+}
+
+.lf-copilot-chat [data-testid="copilot-assistant-toolbar"] button svg,
+.lf-copilot-chat [data-testid="copilot-user-toolbar"] button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Input (.interactive-input-part: margin 0 12px, padding 4px 0;
+ * .chat-input-container: large radius, hairline input border, input background)
+ * ------------------------------------------------------------------------- */
+
+.lf-copilot-chat div:has(> [data-testid="copilot-chat-input"]) {
+  padding: 4px 12px;
+}
+
+.lf-copilot-chat [data-testid="copilot-chat-input"] {
+  border-radius: var(--lf-chat-radius-large);
+  border: var(--lf-chat-stroke) solid hsl(var(--input));
+  background-color: hsl(var(--background));
+  box-shadow: none;
+}
+
+.lf-copilot-chat [data-testid="copilot-chat-input"]:focus-within {
+  border-color: hsl(var(--ring));
+}
+
+.lf-copilot-chat [data-testid="copilot-chat-input"] > div {
+  padding: 4px 6px;
+  column-gap: 4px;
+  row-gap: 4px;
+}
+
+/* The text row: one 22px line minimum, like VS Code's single-line editor. */
+.lf-copilot-chat [data-testid="copilot-chat-input"]
+  [class*="cpk:min-h-[50px]"] {
+  min-height: 30px;
+}
+
+.lf-copilot-chat [data-testid="copilot-chat-textarea"] {
+  font-size: var(--lf-chat-text-m);
+  line-height: 22px;
+  padding: 4px 4px;
+  color: hsl(var(--foreground));
+}
+
+.lf-copilot-chat [data-testid="copilot-chat-textarea"]::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Toolbar actions in the input: 22px, 16px icons. */
+.lf-copilot-chat [data-testid="copilot-chat-input"] button {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  padding: 0;
+  border-radius: var(--lf-chat-radius-small);
+}
+
+.lf-copilot-chat [data-testid="copilot-chat-input"] button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Thinking cursor stays small, in line with 13px text. */
+.lf-copilot-chat [data-testid="copilot-loading-cursor"] {
+  width: 9px;
+  height: 9px;
+}

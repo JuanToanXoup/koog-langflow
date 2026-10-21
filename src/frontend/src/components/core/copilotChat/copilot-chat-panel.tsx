@@ -107,7 +107,7 @@ export function CopilotChatPanel({ isOpen, onClose }: CopilotChatPanelProps) {
       aria-label={t("assistant.title")}
       hidden={!isOpen}
       className={cn(
-        "fixed bottom-16 z-50 flex -translate-x-1/2 flex-col rounded-2xl border border-border bg-background shadow-xl",
+        "lf-copilot-chat fixed bottom-16 z-50 flex -translate-x-1/2 flex-col rounded-2xl border border-border bg-background shadow-xl",
         "max-w-[calc(100vw-2rem)]",
         isSidebarOpen ? "left-[calc(50%+140px)]" : "left-1/2",
         !isOpen && "hidden",

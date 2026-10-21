@@ -1,4 +1,5 @@
 import "@copilotkit/react-core/v2/styles.css";
+import "./copilot-chat.css";
 import { CopilotKitProvider } from "@copilotkit/react-core/v2";
 import type { ReactNode } from "react";
 import { BASE_URL_API } from "@/customization/config-constants";
