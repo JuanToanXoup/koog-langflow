@@ -204,6 +204,7 @@
   "proxy": "http://localhost:7860",
   "devDependencies": {
     "@biomejs/biome": "2.1.1",
+    "@csstools/postcss-cascade-layers": "6.0.1",
     "@jest/types": "^30.0.1",
     "@modelcontextprotocol/server-everything": "^2026.1.14",
     "@playwright/test": "1.60.0",

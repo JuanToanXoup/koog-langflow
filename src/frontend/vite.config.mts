@@ -12,6 +12,7 @@ import {
   PORT,
   PROXY_TARGET,
 } from "./src/customization/config-constants";
+import { copilotkitCss } from "./vite-copilotkit-css";
 import { createAccessTokenExpireSecondsDefinition } from "./vite-env-definitions";
 
 export default defineConfig(({ command, mode }) => {
@@ -95,6 +96,7 @@ export default defineConfig(({ command, mode }) => {
           );
         },
       },
+      copilotkitCss(),
       react(),
       svgr(),
       tsconfigPaths(),
