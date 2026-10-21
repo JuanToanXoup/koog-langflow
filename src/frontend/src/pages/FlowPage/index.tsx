@@ -3,7 +3,11 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
 import { useBlocker, useParams } from "react-router-dom";
 import { AssistantPanel } from "@/components/core/assistantPanel";
-import { CopilotProvider } from "@/components/core/copilotChat/copilot-provider";
+import { CopilotChatPanel } from "@/components/core/copilotChat/copilot-chat-panel";
+import {
+  CopilotProvider,
+  useCopilotChatEnabled,
+} from "@/components/core/copilotChat/copilot-provider";
 import { FlowPageSlidingContainerContent } from "@/components/core/playgroundComponent/sliding-container/components/flow-page-sliding-container";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import {
@@ -236,6 +240,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const outputs = useFlowStore((state) => state.outputs);
 
   // Assistant state
+  const copilotChatEnabled = useCopilotChatEnabled();
   const assistantOpen = useAssistantManagerStore(
     (state) => state.assistantSidebarOpen,
   );
@@ -327,10 +332,17 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
                     SidebarProvider so it can read sidebar open state via
                     ``useSidebar`` and shift its horizontal position when the
                     sidebar slides off-canvas. */}
-                    <AssistantPanel
-                      isOpen={assistantOpen}
-                      onClose={() => setAssistantOpen(false)}
-                    />
+                    {copilotChatEnabled ? (
+                      <CopilotChatPanel
+                        isOpen={assistantOpen}
+                        onClose={() => setAssistantOpen(false)}
+                      />
+                    ) : (
+                      <AssistantPanel
+                        isOpen={assistantOpen}
+                        onClose={() => setAssistantOpen(false)}
+                      />
+                    )}
                     <FlowSearchProvider>
                       {/* FlowSidebarComponent - stays in place. Wrapped in a
                       ``display: none`` container while the welcome is open

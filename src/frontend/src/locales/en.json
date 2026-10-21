@@ -3033,5 +3033,9 @@
   "connections.add.allowBackgroundRunsHelp": "Needed for Slack triggers, and for any flow a trigger runs with this connection: those runs happen with no one signed in. You can turn it off later.",
   "connections.identity.user_delegated": "The signed-in user",
   "connections.identity.bot": "A bot",
-  "connections.identity.service": "A service account"
+  "connections.identity.service": "A service account",
+  "assistant.close": "Close assistant",
+  "assistant.agentPicker.label": "Agent",
+  "assistant.copilot.placeholder": "Ask, build, or edit…",
+  "assistant.copilot.welcome": "How can I help with this flow?"
 }

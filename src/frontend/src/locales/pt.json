@@ -3034,5 +3034,9 @@
   "connections.add.allowBackgroundRunsHelp": "Necessário para os gatilhos do Slack e para qualquer fluxo que um gatilho execute com esta conexão: essas execuções acontecem sem ninguém conectado. Você pode desativar isso depois.",
   "connections.identity.user_delegated": "O usuário conectado",
   "connections.identity.bot": "Um bot",
-  "connections.identity.service": "Uma conta de serviço"
+  "connections.identity.service": "Uma conta de serviço",
+  "assistant.close": "Fechar assistente",
+  "assistant.agentPicker.label": "Agente",
+  "assistant.copilot.placeholder": "Pergunte, crie ou edite…",
+  "assistant.copilot.welcome": "Como posso ajudar com este fluxo?"
 }

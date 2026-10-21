@@ -3034,5 +3034,9 @@
   "connections.add.allowBackgroundRunsHelp": "Erforderlich für Slack-Trigger und für jeden Flow, den ein Trigger mit dieser Verbindung ausführt: Diese Ausführungen erfolgen, ohne dass jemand angemeldet ist. Sie können dies später wieder deaktivieren.",
   "connections.identity.user_delegated": "Angemeldete Person",
   "connections.identity.bot": "Ein Bot",
-  "connections.identity.service": "Ein Dienstkonto"
+  "connections.identity.service": "Ein Dienstkonto",
+  "assistant.close": "Assistent schließen",
+  "assistant.agentPicker.label": "Agent",
+  "assistant.copilot.placeholder": "Fragen, erstellen oder bearbeiten…",
+  "assistant.copilot.welcome": "Wie kann ich bei diesem Ablauf helfen?"
 }

@@ -3034,5 +3034,9 @@
   "connections.add.allowBackgroundRunsHelp": "Necesario para los disparadores de Slack y para cualquier flujo que un disparador ejecute con esta conexión: esas ejecuciones ocurren sin nadie con la sesión iniciada. Puedes desactivarlo más adelante.",
   "connections.identity.user_delegated": "El usuario que inició sesión",
   "connections.identity.bot": "Un bot",
-  "connections.identity.service": "Una cuenta de servicio"
+  "connections.identity.service": "Una cuenta de servicio",
+  "assistant.close": "Cerrar asistente",
+  "assistant.agentPicker.label": "Agente",
+  "assistant.copilot.placeholder": "Pregunta, crea o edita…",
+  "assistant.copilot.welcome": "¿Cómo puedo ayudarte con este flujo?"
 }
