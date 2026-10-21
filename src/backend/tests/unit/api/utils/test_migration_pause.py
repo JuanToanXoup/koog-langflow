@@ -139,6 +139,7 @@ READS = frozenset(
         "/api/v1/config",
         "/api/v1/connections",
         "/api/v1/connections/oauth/registrations",
+        "/api/v1/copilotkit/info",
         "/api/v1/data-subjects/requests",
         "/api/v1/data-subjects/requests/{request_id}",
         "/api/v1/data-subjects/requests/{request_id}/dry-run",
