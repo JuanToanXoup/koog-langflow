@@ -52,7 +52,7 @@ jest.mock(
 // The presentational cards are the previous panel's, tested on their own; stand-ins
 // expose their callbacks as buttons.
 jest.mock(
-  "@/components/core/assistantPanel/components/assistant-flow-preview",
+  "@/components/core/copilotChat/components/assistant-flow-preview",
   () => ({
     AssistantFlowPreview: ({
       status,
@@ -88,7 +88,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@/components/core/assistantPanel/components/assistant-flow-edit-card",
+  "@/components/core/copilotChat/components/assistant-flow-edit-card",
   () => ({
     FlowEditCarousel: ({
       actions,
@@ -120,7 +120,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@/components/core/assistantPanel/components/assistant-plan-card",
+  "@/components/core/copilotChat/components/assistant-plan-card",
   () => ({
     AssistantPlanCard: ({
       status,
@@ -149,7 +149,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@/components/core/assistantPanel/components/assistant-component-result",
+  "@/components/core/copilotChat/components/assistant-component-result",
   () => ({
     AssistantComponentResult: ({
       result,
@@ -166,7 +166,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@/components/core/assistantPanel/components/assistant-validation-failed",
+  "@/components/core/copilotChat/components/assistant-validation-failed",
   () => ({
     AssistantValidationFailed: ({
       result,
@@ -177,7 +177,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@/components/core/assistantPanel/components/assistant-revert-action",
+  "@/components/core/copilotChat/components/assistant-revert-action",
   () => ({
     AssistantRevertAction: ({
       restoreVersionId,
@@ -188,7 +188,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@/components/core/assistantPanel/components/file-content-modal",
+  "@/components/core/copilotChat/components/file-content-modal",
   () => ({ FileContentModal: () => null }),
 );
 

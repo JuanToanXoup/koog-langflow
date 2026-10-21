@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ModelSelector } from "@/components/core/assistantPanel/components/model-selector";
+import { ModelSelector } from "@/components/core/copilotChat/components/model-selector";
 import useCopilotChatStore from "@/stores/copilotChatStore";
 import { useDefaultLanguageModel } from "../hooks/use-default-language-model";
 

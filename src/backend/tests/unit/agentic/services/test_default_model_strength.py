@@ -15,7 +15,7 @@ import re
 import pytest
 from langflow.agentic.services.provider_service import ASSISTANT_PREFERRED_MODELS, get_default_model
 
-# Mirrors src/frontend/src/components/core/assistantPanel/helpers/model-strength.ts —
+# Mirrors src/frontend/src/components/core/copilotChat/helpers/model-strength.ts —
 # the classifier that drives the composer's warning. A default that trips this is the bug.
 _WEAK_SUFFIX = re.compile(r"\b(nano|mini|micro|tiny|small|lite|instant|flash|haiku)\b", re.IGNORECASE)
 _WEAK_FAMILY = re.compile(r"\bgpt-3(\.5)?\b|\bclaude-instant\b|\bgemini-1\.0\b|\bphi-?[1-3]\b", re.IGNORECASE)

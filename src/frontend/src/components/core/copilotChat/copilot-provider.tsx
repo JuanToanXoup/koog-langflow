@@ -2,7 +2,6 @@ import "@copilotkit/react-core/v2/styles.css";
 import { CopilotKitProvider } from "@copilotkit/react-core/v2";
 import type { ReactNode } from "react";
 import { BASE_URL_API } from "@/customization/config-constants";
-import { ENABLE_COPILOTKIT_CHAT } from "@/customization/feature-flags";
 import { useCustomApiHeaders } from "@/customization/hooks/use-custom-api-headers";
 import { getFetchCredentials } from "@/customization/utils/get-fetch-credentials";
 import { useUtilityStore } from "@/stores/utilityStore";
@@ -11,13 +10,13 @@ import { useForwardedProps } from "./hooks/use-forwarded-props";
 export const COPILOTKIT_RUNTIME_URL = `${BASE_URL_API}copilotkit`;
 export const DEFAULT_COPILOT_AGENT_ID = "langflow";
 
-/** True when the assistant panel is the CopilotKit chat. */
+/** True when the server offers the assistant chat (/api/v1/copilotkit). */
 export function useCopilotChatEnabled(): boolean {
   const serverEnabled = useUtilityStore((state) => state.copilotkitChatEnabled);
   const agenticExperienceEnabled = useUtilityStore(
     (state) => state.agenticExperienceEnabled,
   );
-  return ENABLE_COPILOTKIT_CHAT && serverEnabled && agenticExperienceEnabled;
+  return serverEnabled && agenticExperienceEnabled;
 }
 
 /**

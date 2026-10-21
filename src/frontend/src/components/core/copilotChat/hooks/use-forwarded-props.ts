@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { AssistantModel } from "@/components/core/assistantPanel/assistant-panel.types";
+import type { AssistantModel } from "@/components/core/copilotChat/types";
 import useCopilotChatStore from "@/stores/copilotChatStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 

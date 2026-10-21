@@ -17,4 +17,3 @@ export type {
   AssistantModelNotice,
   FlowAction,
 } from "./types";
-export { postAssistStream } from "./use-post-assist-stream";

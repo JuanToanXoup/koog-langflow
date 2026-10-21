@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import type { AssistantModel } from "@/components/core/assistantPanel/assistant-panel.types";
 import {
   readHistoryLimit,
   writeHistoryLimit,
@@ -21,6 +20,7 @@ import {
   writeSelectedModel,
   writeThreadIds,
 } from "@/components/core/copilotChat/helpers/thread-storage";
+import type { AssistantModel } from "@/components/core/copilotChat/types";
 
 export const DEFAULT_COPILOT_AGENT = "langflow";
 

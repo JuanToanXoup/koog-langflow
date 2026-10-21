@@ -8,7 +8,7 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { AssistantModel } from "@/components/core/assistantPanel/assistant-panel.types";
+import type { AssistantModel } from "@/components/core/copilotChat/types";
 import { DEFAULT_ASSISTANT_MAX_MESSAGE_LENGTH } from "@/constants/constants";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { useUtilityStore } from "@/stores/utilityStore";
@@ -37,7 +37,7 @@ jest.mock("@/components/common/shadTooltipComponent", () => ({
 // ModelSelector pulls in React Query (useGetModelProviders) which needs a
 // QueryClientProvider wrapper. These tests focus on the welcome's own
 // callbacks/wiring, so replace the selector with a stub.
-jest.mock("@/components/core/assistantPanel/components/model-selector", () => ({
+jest.mock("@/components/core/copilotChat/components/model-selector", () => ({
   ModelSelector: () => <div data-testid="mock-model-selector" />,
 }));
 
@@ -53,7 +53,7 @@ let mockSelectedModel: AssistantModel | null = SELECTED_MODEL;
 // path predictable in tests while still exercising authorization of the
 // selected value.
 jest.mock(
-  "@/components/core/assistantPanel/hooks/use-assistant-selected-model",
+  "@/components/core/copilotChat/hooks/use-assistant-selected-model",
   () => ({
     useAssistantSelectedModel: () => [mockSelectedModel, jest.fn()],
   }),
@@ -70,7 +70,7 @@ const mockUseEnabledModels = jest.fn(() => ({
   isCatalogReady: true,
   isModelEnabled: (model: AssistantModel | null): boolean => model !== null,
 }));
-jest.mock("@/components/core/assistantPanel/hooks/use-enabled-models", () => ({
+jest.mock("@/components/core/copilotChat/hooks/use-enabled-models", () => ({
   useEnabledModels: () => mockUseEnabledModels(),
 }));
 

@@ -12,7 +12,7 @@ import {
   useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { AssistantDisabledState } from "@/components/core/assistantPanel/components/assistant-disabled-state";
+import { AssistantDisabledState } from "@/components/core/copilotChat/components/assistant-disabled-state";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useIsFlowReadOnly } from "@/contexts/permissionsContext";
 import { BASE_URL_API } from "@/customization/config-constants";

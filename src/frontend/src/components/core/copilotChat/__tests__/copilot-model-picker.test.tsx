@@ -9,7 +9,7 @@ jest.mock("@/controllers/API/api", () => ({
   api: { get: (...args: unknown[]) => mockApiGet(...args) },
 }));
 
-jest.mock("@/components/core/assistantPanel/components/model-selector", () => ({
+jest.mock("@/components/core/copilotChat/components/model-selector", () => ({
   ModelSelector: ({
     selectedModel,
   }: {

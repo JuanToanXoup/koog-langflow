@@ -8,18 +8,18 @@ import { cloneDeep } from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import MessageMetadata from "@/components/common/messageMetadataComponent";
-import type { WrittenFile } from "@/components/core/assistantPanel/assistant-panel.types";
-import { AssistantBuildTasks } from "@/components/core/assistantPanel/components/assistant-build-tasks";
-import { AssistantComponentResult } from "@/components/core/assistantPanel/components/assistant-component-result";
-import { AssistantFileCard } from "@/components/core/assistantPanel/components/assistant-file-card";
-import { FlowEditCarousel } from "@/components/core/assistantPanel/components/assistant-flow-edit-card";
-import { AssistantFlowPreview } from "@/components/core/assistantPanel/components/assistant-flow-preview";
-import { AssistantModelNotice } from "@/components/core/assistantPanel/components/assistant-model-notice";
-import { AssistantPlanCard } from "@/components/core/assistantPanel/components/assistant-plan-card";
-import { AssistantRevertAction } from "@/components/core/assistantPanel/components/assistant-revert-action";
-import { AssistantValidationFailed } from "@/components/core/assistantPanel/components/assistant-validation-failed";
-import { FileContentModal } from "@/components/core/assistantPanel/components/file-content-modal";
-import { buildTaskFromEvent } from "@/components/core/assistantPanel/helpers/assistant-event-mappers";
+import { AssistantBuildTasks } from "@/components/core/copilotChat/components/assistant-build-tasks";
+import { AssistantComponentResult } from "@/components/core/copilotChat/components/assistant-component-result";
+import { AssistantFileCard } from "@/components/core/copilotChat/components/assistant-file-card";
+import { FlowEditCarousel } from "@/components/core/copilotChat/components/assistant-flow-edit-card";
+import { AssistantFlowPreview } from "@/components/core/copilotChat/components/assistant-flow-preview";
+import { AssistantModelNotice } from "@/components/core/copilotChat/components/assistant-model-notice";
+import { AssistantPlanCard } from "@/components/core/copilotChat/components/assistant-plan-card";
+import { AssistantRevertAction } from "@/components/core/copilotChat/components/assistant-revert-action";
+import { AssistantValidationFailed } from "@/components/core/copilotChat/components/assistant-validation-failed";
+import { FileContentModal } from "@/components/core/copilotChat/components/file-content-modal";
+import { buildTaskFromEvent } from "@/components/core/copilotChat/helpers/assistant-event-mappers";
+import type { WrittenFile } from "@/components/core/copilotChat/types";
 import type {
   AgenticFlowUpdateEvent,
   AssistantModelNotice as AssistantModelNoticeType,

@@ -10,7 +10,7 @@ import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import {
   readAssistantDiscovered,
   writeAssistantDiscovered,
-} from "@/components/core/assistantPanel/hooks/assistant-discovery-storage";
+} from "@/components/core/copilotChat/hooks/assistant-discovery-storage";
 import { Button } from "@/components/ui/button";
 import useAssistantManagerStore from "@/stores/assistantManagerStore";
 import useFlowBuilderWelcomeStore from "@/stores/flowBuilderWelcomeStore";
