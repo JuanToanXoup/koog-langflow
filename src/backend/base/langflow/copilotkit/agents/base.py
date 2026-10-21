@@ -1,0 +1,1 @@
+"""CopilotKit agent base class."""
