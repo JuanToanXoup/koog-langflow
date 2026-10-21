@@ -1,5 +1,5 @@
-import { MAX_HISTORY_LIMIT } from "../hooks/history-storage";
-import { MAX_ITERATIONS_LIMIT } from "../hooks/iterations-storage";
+import { MAX_HISTORY_LIMIT } from "./history-storage";
+import { MAX_ITERATIONS_LIMIT } from "./iterations-storage";
 
 export interface AssistantSlashCommand {
   /** Command name without the leading slash; matches what `useAssistantChat` parses. */

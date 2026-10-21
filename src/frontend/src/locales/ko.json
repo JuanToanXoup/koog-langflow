@@ -3039,5 +3039,6 @@
   "assistant.copilot.placeholder": "질문, 빌드 또는 편집…",
   "assistant.copilot.welcome": "이 Flow와 관련해 무엇을 도와드릴까요?",
   "assistant.copilot.flowReplaced": "캔버스의 Flow를 교체했습니다",
-  "assistant.copilot.planDismissed": "계획을 닫았습니다."
+  "assistant.copilot.planDismissed": "계획을 닫았습니다.",
+  "assistant.copilot.skipAllHint": "모두 건너뛰기 모드가 켜져 있습니다. 계획과 Flow 제안이 자동으로 승인됩니다. 끄려면 /skip-all을 입력하세요."
 }

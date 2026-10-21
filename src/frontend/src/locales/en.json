@@ -3039,5 +3039,6 @@
   "assistant.copilot.placeholder": "Ask, build, or edit…",
   "assistant.copilot.welcome": "How can I help with this flow?",
   "assistant.copilot.flowReplaced": "Replaced the flow on the canvas",
-  "assistant.copilot.planDismissed": "Plan dismissed."
+  "assistant.copilot.planDismissed": "Plan dismissed.",
+  "assistant.copilot.skipAllHint": "Skip-all mode is on: plans and flow proposals are accepted automatically. Type /skip-all to turn it off."
 }

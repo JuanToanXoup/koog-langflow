@@ -5,7 +5,7 @@
  */
 import { useUpdateNodeInternals } from "@xyflow/react";
 import { cloneDeep } from "lodash";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import MessageMetadata from "@/components/common/messageMetadataComponent";
 import type { WrittenFile } from "@/components/core/assistantPanel/assistant-panel.types";
@@ -30,12 +30,14 @@ import { handleBlockedSave } from "@/hooks/flows/handle-blocked-save";
 import useSaveFlow from "@/hooks/flows/use-save-flow";
 import { useAddComponent } from "@/hooks/use-add-component";
 import useAssistantManagerStore from "@/stores/assistantManagerStore";
+import useCopilotChatStore from "@/stores/copilotChatStore";
 import useFlowStore from "@/stores/flowStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import type { APIClassType } from "@/types/api";
 import { applyFlowProposalToCanvas } from "../helpers/apply-flow-proposal";
 import type { PendingFlowProposal } from "../types";
 import {
+  isLiveToolCall,
   PLAN_APPROVAL_TEXT,
   parseToolAnswer,
   useToolAnswer,
@@ -53,6 +55,22 @@ export interface ToolCardProps<A> {
 
 const closePanel = () =>
   useAssistantManagerStore.getState().setAssistantSidebarOpen(false);
+
+/**
+ * Under ``/skip-all``, accept a card once, as soon as it arrives. Only for tool
+ * calls streamed during this page session, never ones restored from history.
+ */
+function useSkipAll(toolCallId: string, pending: boolean, accept: () => void) {
+  const skipAll = useCopilotChatStore((state) => state.skipAll);
+  const done = useRef(false);
+  useEffect(() => {
+    if (done.current || !skipAll || !pending || !isLiveToolCall(toolCallId)) {
+      return;
+    }
+    done.current = true;
+    accept();
+  }, [skipAll, pending, toolCallId, accept]);
+}
 
 /** Push the canvas onto the undo stack, so Cmd/Ctrl+Z takes back what follows. */
 export const takeUndoSnapshot = () =>
@@ -122,6 +140,23 @@ export function FlowProposalCard({
   const setSnapshot = useToolCardState((s) => s.setSnapshot);
   const proposal = useMemo(() => toPendingFlowProposal(args.value), [args]);
   const decision = parseToolAnswer<{ applied?: boolean }>(result);
+
+  const apply = (mode: "replace" | "add", { reveal }: { reveal: boolean }) => {
+    if (!proposal) return;
+    const { nodes, edges } = useFlowStore.getState();
+    setSnapshot(toolCallId, {
+      nodes: cloneDeep(nodes) as unknown[],
+      edges: cloneDeep(edges) as unknown[],
+    });
+    takeUndoSnapshot();
+    applyFlowProposalToCanvas(proposal, mode, updateNodeInternals);
+    answer({ applied: true, mode });
+    // Get the panel out of the way so the new canvas is visible.
+    if (reveal) closePanel();
+  };
+  useSkipAll(toolCallId, !decision && proposal !== null, () =>
+    apply("replace", { reveal: false }),
+  );
   if (!proposal) return null;
 
   // After Revert the card offers the proposal again, as the previous panel did.
@@ -133,18 +168,8 @@ export function FlowProposalCard({
         ? "pending"
         : "dismissed";
 
-  const handleApply = (mode: "replace" | "add") => {
-    const { nodes, edges } = useFlowStore.getState();
-    setSnapshot(toolCallId, {
-      nodes: cloneDeep(nodes) as unknown[],
-      edges: cloneDeep(edges) as unknown[],
-    });
-    takeUndoSnapshot();
-    applyFlowProposalToCanvas(proposal, mode, updateNodeInternals);
-    answer({ applied: true, mode });
-    // Get the panel out of the way so the new canvas is visible.
-    closePanel();
-  };
+  const handleApply = (mode: "replace" | "add") =>
+    apply(mode, { reveal: true });
 
   const handleRevert = () => {
     if (!snapshot) return;
@@ -268,6 +293,9 @@ export function PlanCard({
   const setMark = useToolCardState((s) => s.setMark);
   const decision = parseToolAnswer<{ approved?: boolean; refine?: boolean }>(
     result,
+  );
+  useSkipAll(toolCallId, !decision && Boolean(args.markdown), () =>
+    answer({ approved: true }, { followUp: true }),
   );
   if (!args.markdown) return null;
 

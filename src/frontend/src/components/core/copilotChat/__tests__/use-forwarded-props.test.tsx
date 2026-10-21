@@ -24,7 +24,11 @@ describe("forwarded props", () => {
   beforeEach(() => {
     __resetCopilotKitMock();
     useFlowsManagerStore.setState({ currentFlowId: "flow-1" });
-    useCopilotChatStore.setState({ selectedModel: MODEL });
+    useCopilotChatStore.setState({
+      selectedModel: MODEL,
+      historyLimit: null,
+      iterationsLimit: null,
+    });
     useUtilityStore.setState({
       copilotkitChatEnabled: true,
       agenticExperienceEnabled: true,
@@ -62,6 +66,17 @@ describe("forwarded props", () => {
       flow_id: "flow-1",
       provider: "OpenAI Compatible",
       model_name: "claude-fable-5-1",
+    });
+  });
+
+  it("carries the /history and /iterations limits once set", () => {
+    useCopilotChatStore.setState({ historyLimit: 0, iterationsLimit: 40 });
+
+    const { result } = renderHook(() => useForwardedProps());
+
+    expect(result.current).toMatchObject({
+      history_limit: 0,
+      iterations_limit: 40,
     });
   });
 

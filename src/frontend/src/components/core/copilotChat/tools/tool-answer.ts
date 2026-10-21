@@ -84,6 +84,21 @@ export function useToolAnswer(toolCallId: string) {
   return { answer, say };
 }
 
+const liveToolCalls = new Set<string>();
+
+/** Remember a tool call that streamed in during this page session. */
+export function markLiveToolCall(toolCallId: string): void {
+  liveToolCalls.add(toolCallId);
+}
+
+/**
+ * True for a tool call that arrived while this page was open. Skip-all only
+ * auto-accepts those: a proposal restored from history waits for a click.
+ */
+export function isLiveToolCall(toolCallId: string): boolean {
+  return liveToolCalls.has(toolCallId);
+}
+
 interface ToolCardState {
   /** Canvas captured before a proposal was applied, for its Revert button. */
   snapshots: Record<string, { nodes: unknown[]; edges: unknown[] }>;

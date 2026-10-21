@@ -12,15 +12,15 @@ import type { AssistantModel } from "../assistant-panel.types";
 import { getRandomPlaceholderMessage } from "../helpers/messages";
 import { useAssistantSelectedModel } from "../hooks/use-assistant-selected-model";
 import { useAutoGrowTextarea } from "../hooks/use-auto-grow-textarea";
-import { useComponentMentions } from "../hooks/use-component-mentions";
+import { useComponentMentions } from "@/components/core/copilotChat/hooks/use-component-mentions";
 import { useEnabledModels } from "../hooks/use-enabled-models";
-import { useInputHistory } from "../hooks/use-input-history";
-import { useSlashCommands } from "../hooks/use-slash-commands";
-import { AssistantMentionPopover } from "./assistant-mention-popover";
+import { useInputHistory } from "@/components/core/copilotChat/hooks/use-input-history";
+import { useSlashCommands } from "@/components/core/copilotChat/hooks/use-slash-commands";
+import { AssistantMentionPopover } from "@/components/core/copilotChat/components/assistant-mention-popover";
 import {
   AssistantSlashCommandPopover,
   slashCommandOptionId,
-} from "./assistant-slash-command-popover";
+} from "@/components/core/copilotChat/components/assistant-slash-command-popover";
 import { ModelSelector } from "./model-selector";
 
 // During these steps the message area shows the thinking animation, so the

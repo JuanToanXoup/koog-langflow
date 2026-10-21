@@ -5,8 +5,13 @@ import {
   mockCopilotKit,
 } from "@/__mocks__/@copilotkit/react-core-v2";
 import useAssistantManagerStore from "@/stores/assistantManagerStore";
+import useCopilotChatStore from "@/stores/copilotChatStore";
 import useFlowStore from "@/stores/flowStore";
-import { PLAN_APPROVAL_TEXT, useToolCardState } from "../tool-answer";
+import {
+  markLiveToolCall,
+  PLAN_APPROVAL_TEXT,
+  useToolCardState,
+} from "../tool-answer";
 import {
   AppliedUpdateRow,
   ComponentCard,
@@ -214,6 +219,63 @@ describe("tool cards", () => {
     useToolCardState.setState({ snapshots: {}, marks: {} });
     useAssistantManagerStore.setState({ assistantSidebarOpen: true });
     useFlowStore.setState({ nodes: [], edges: [] } as never);
+    useCopilotChatStore.setState({ skipAll: false });
+  });
+
+  describe("skip-all", () => {
+    beforeEach(() => useCopilotChatStore.setState({ skipAll: true }));
+
+    it("approves a plan that just arrived", () => {
+      markLiveToolCall("t-live-plan");
+      render(
+        <PlanCard
+          toolCallId="t-live-plan"
+          status="inProgress"
+          args={{ markdown: "1." }}
+        />,
+      );
+
+      expect(toolResults()).toEqual([
+        { toolCallId: "t-live-plan", approved: true },
+      ]);
+      expect(mockCopilotKit.runAgent).toHaveBeenCalledTimes(1);
+    });
+
+    it("replaces the canvas with a flow that just arrived, keeping the panel open", () => {
+      markLiveToolCall("t-live-flow");
+      render(
+        <FlowProposalCard
+          toolCallId="t-live-flow"
+          status="inProgress"
+          args={{ value: { flow: FLOW, node_count: 1 } }}
+        />,
+      );
+
+      expect(mockApplyProposal).toHaveBeenCalledWith(
+        expect.objectContaining({ flow: FLOW }),
+        "replace",
+        expect.any(Function),
+      );
+      expect(toolResults()).toEqual([
+        { toolCallId: "t-live-flow", applied: true, mode: "replace" },
+      ]);
+      expect(useAssistantManagerStore.getState().assistantSidebarOpen).toBe(
+        true,
+      );
+    });
+
+    it("leaves a proposal restored from history for a click", () => {
+      render(
+        <PlanCard
+          toolCallId="t-restored"
+          status="inProgress"
+          args={{ markdown: "1." }}
+        />,
+      );
+
+      expect(toolResults()).toEqual([]);
+      expect(mockCopilotKit.runAgent).not.toHaveBeenCalled();
+    });
   });
 
   describe("AppliedUpdateRow", () => {

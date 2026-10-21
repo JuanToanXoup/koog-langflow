@@ -3040,5 +3040,6 @@
   "assistant.copilot.placeholder": "質問、作成、編集…",
   "assistant.copilot.welcome": "このフローについて何をお手伝いしましょうか？",
   "assistant.copilot.flowReplaced": "キャンバス上のフローを置き換えました",
-  "assistant.copilot.planDismissed": "プランを破棄しました。"
+  "assistant.copilot.planDismissed": "プランを破棄しました。",
+  "assistant.copilot.skipAllHint": "スキップオールモードがオンです。プランとフローの提案は自動的に承認されます。オフにするには /skip-all と入力してください。"
 }

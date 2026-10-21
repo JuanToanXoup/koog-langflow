@@ -3040,5 +3040,6 @@
   "assistant.copilot.placeholder": "Demandez, créez ou modifiez…",
   "assistant.copilot.welcome": "Comment puis-je vous aider avec ce flux ?",
   "assistant.copilot.flowReplaced": "Flux remplacé sur le canevas",
-  "assistant.copilot.planDismissed": "Plan ignoré."
+  "assistant.copilot.planDismissed": "Plan ignoré.",
+  "assistant.copilot.skipAllHint": "Le mode tout ignorer est activé : les plans et les propositions de flux sont acceptés automatiquement. Tapez /skip-all pour le désactiver."
 }

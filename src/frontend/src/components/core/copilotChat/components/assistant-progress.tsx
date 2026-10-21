@@ -5,6 +5,7 @@ import type {
   AgenticProgressEvent,
   AgenticToolStartEvent,
 } from "@/controllers/API/queries/agentic";
+import { markLiveToolCall } from "../tools/tool-answer";
 
 interface Subscribable {
   isRunning: boolean;
@@ -15,7 +16,7 @@ interface Subscribable {
     onCustomEvent?: (params: {
       event: { name: string; value: unknown };
     }) => void;
-    onToolCallStartEvent?: () => void;
+    onToolCallStartEvent?: (params: { event: { toolCallId: string } }) => void;
   }) => { unsubscribe: () => void };
 }
 
@@ -63,8 +64,10 @@ export function useAssistantRunState(agent: Subscribable): AssistantRunState {
         }
       },
       // The tool's result lands as a tool call; the "doing X" line is done.
-      onToolCallStartEvent: () =>
-        setState((s) => ({ ...s, toolLabel: undefined })),
+      onToolCallStartEvent: ({ event }) => {
+        markLiveToolCall(event.toolCallId);
+        setState((s) => ({ ...s, toolLabel: undefined }));
+      },
     });
     return () => subscription.unsubscribe();
   }, [agent]);

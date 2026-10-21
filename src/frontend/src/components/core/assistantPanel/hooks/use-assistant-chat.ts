@@ -33,13 +33,13 @@ import {
   parseHistoryCommand,
   readHistoryLimit,
   writeHistoryLimit,
-} from "./history-storage";
+} from "@/components/core/copilotChat/helpers/history-storage";
 import {
   parseIterationsCommand,
   readIterationsLimit,
   writeIterationsLimit,
-} from "./iterations-storage";
-import { readSkipAll, writeSkipAll } from "./skip-all-storage";
+} from "@/components/core/copilotChat/helpers/iterations-storage";
+import { readSkipAll, writeSkipAll } from "@/components/core/copilotChat/helpers/skip-all-storage";
 import type { UseAssistantChatReturn } from "./use-assistant-chat.types";
 
 const uid = new ShortUniqueId();

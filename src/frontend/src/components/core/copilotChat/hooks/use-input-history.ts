@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 
-import { pushHistory, readHistory } from "./input-history-storage";
+import { pushHistory, readHistory } from "../helpers/input-history-storage";
 
 type Direction = "up" | "down";
 

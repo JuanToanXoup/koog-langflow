@@ -8,7 +8,12 @@
  * for assertions, agents are plain message holders, and tool registrations
  * are recorded so tests can call a handler or render a card directly.
  */
-import type { ComponentType, ReactNode } from "react";
+import {
+  type ComponentType,
+  forwardRef,
+  type ReactNode,
+  type TextareaHTMLAttributes,
+} from "react";
 
 export type MockMessage = {
   id: string;
@@ -155,38 +160,63 @@ export function CopilotChat(props: Record<string, unknown>) {
   );
 }
 
+const MockTextArea = forwardRef<
+  HTMLTextAreaElement,
+  TextareaHTMLAttributes<HTMLTextAreaElement>
+>(function MockTextArea(props, ref) {
+  return <textarea data-testid="copilot-chat-textarea" ref={ref} {...props} />;
+});
+
+/**
+ * Renders the ``textArea`` slot the way CopilotKit does: a component slot gets
+ * CopilotKit's own handlers (Enter sends), which it may wrap.
+ */
 export function CopilotChatInput({
   onSubmitMessage,
   value,
   onChange,
-  ...props
+  textArea,
 }: {
   onSubmitMessage?: (value: string) => void;
   value?: string;
   onChange?: (value: string) => void;
+  textArea?:
+    | ComponentType<TextareaHTMLAttributes<HTMLTextAreaElement>>
+    | object;
   [key: string]: unknown;
 }) {
-  const textArea = props.textArea as
-    | { onKeyDown?: (e: unknown) => void }
-    | undefined;
+  // Same test CopilotKit's renderSlot uses: functions and forwardRef/memo objects.
+  const isComponent =
+    typeof textArea === "function" ||
+    (typeof textArea === "object" &&
+      textArea !== null &&
+      "$$typeof" in textArea);
+  const TextArea = (isComponent ? textArea : MockTextArea) as ComponentType<
+    TextareaHTMLAttributes<HTMLTextAreaElement>
+  >;
+  const send = () => {
+    const trimmed = (value ?? "").trim();
+    if (trimmed) onSubmitMessage?.(trimmed);
+  };
   return (
     <div data-testid="copilot-chat-input">
-      <textarea
-        data-testid="copilot-chat-textarea"
+      <TextArea
         value={value ?? ""}
         onChange={(e) => onChange?.(e.target.value)}
-        onKeyDown={(e) => textArea?.onKeyDown?.(e)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            send();
+          }
+        }}
       />
-      <button
-        type="button"
-        data-testid="copilot-chat-send"
-        onClick={() => onSubmitMessage?.(value ?? "")}
-      >
+      <button type="button" data-testid="copilot-chat-send" onClick={send}>
         send
       </button>
     </div>
   );
 }
+CopilotChatInput.TextArea = MockTextArea;
 
 export function useAgent({ agentId }: { agentId?: string } = {}) {
   return { agent: __getMockAgent(agentId ?? "default"), isReady: true };

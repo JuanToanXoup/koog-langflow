@@ -3040,5 +3040,6 @@
   "assistant.copilot.placeholder": "Fragen, erstellen oder bearbeiten…",
   "assistant.copilot.welcome": "Wie kann ich bei diesem Ablauf helfen?",
   "assistant.copilot.flowReplaced": "Ablauf auf der Arbeitsfläche ersetzt",
-  "assistant.copilot.planDismissed": "Plan verworfen."
+  "assistant.copilot.planDismissed": "Plan verworfen.",
+  "assistant.copilot.skipAllHint": "Der Modus „Alles überspringen“ ist aktiv: Pläne und Ablaufvorschläge werden automatisch angenommen. Geben Sie /skip-all ein, um ihn auszuschalten."
 }

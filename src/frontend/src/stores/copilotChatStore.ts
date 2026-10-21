@@ -1,6 +1,18 @@
 import { create } from "zustand";
 import type { AssistantModel } from "@/components/core/assistantPanel/assistant-panel.types";
 import {
+  readHistoryLimit,
+  writeHistoryLimit,
+} from "@/components/core/copilotChat/helpers/history-storage";
+import {
+  readIterationsLimit,
+  writeIterationsLimit,
+} from "@/components/core/copilotChat/helpers/iterations-storage";
+import {
+  readSkipAll,
+  writeSkipAll,
+} from "@/components/core/copilotChat/helpers/skip-all-storage";
+import {
   newThreadId,
   readAgentId,
   readSelectedModel,
@@ -31,6 +43,15 @@ interface CopilotChatState {
   /** The model both agents run on; sent as ``forwardedProps.provider``/``model_name``. */
   selectedModel: AssistantModel | null;
   setSelectedModel: (model: AssistantModel | null) => void;
+  /** ``/history N``: past messages the assistant remembers; null = server default. */
+  historyLimit: number | null;
+  setHistoryLimit: (limit: number | null) => void;
+  /** ``/iterations N``: the assistant's step budget per request; null = server default. */
+  iterationsLimit: number | null;
+  setIterationsLimit: (limit: number | null) => void;
+  /** ``/skip-all``: plans and flow proposals are accepted without a click. */
+  skipAll: boolean;
+  setSkipAll: (skipAll: boolean) => void;
 }
 
 const useCopilotChatStore = create<CopilotChatState>((set, get) => ({
@@ -56,6 +77,21 @@ const useCopilotChatStore = create<CopilotChatState>((set, get) => ({
   setSelectedModel: (selectedModel) => {
     if (selectedModel) writeSelectedModel(selectedModel);
     set({ selectedModel });
+  },
+  historyLimit: readHistoryLimit(),
+  setHistoryLimit: (historyLimit) => {
+    writeHistoryLimit(historyLimit);
+    set({ historyLimit });
+  },
+  iterationsLimit: readIterationsLimit(),
+  setIterationsLimit: (iterationsLimit) => {
+    writeIterationsLimit(iterationsLimit);
+    set({ iterationsLimit });
+  },
+  skipAll: readSkipAll(),
+  setSkipAll: (skipAll) => {
+    writeSkipAll(skipAll);
+    set({ skipAll });
   },
 }));
 

@@ -1,6 +1,7 @@
 import {
   CopilotChat,
   CopilotChatConfigurationProvider,
+  type CopilotChatInput,
   useCopilotKit,
 } from "@copilotkit/react-core/v2";
 import {
@@ -25,6 +26,7 @@ import {
   AssistantProgress,
   useAssistantRunState,
 } from "./components/assistant-progress";
+import { CopilotChatComposer } from "./components/copilot-chat-composer";
 import { CopilotChatHeader } from "./components/copilot-chat-header";
 import { CopilotModelPicker } from "./components/copilot-model-picker";
 import { useCopilotChatEnabled } from "./copilot-provider";
@@ -147,6 +149,7 @@ function CopilotChatSession({
   const threadId = useCopilotChatStore((state) => state.threadIds[flowId]);
   const ensureThreadId = useCopilotChatStore((state) => state.ensureThreadId);
   const startNewThread = useCopilotChatStore((state) => state.startNewThread);
+  const skipAll = useCopilotChatStore((state) => state.skipAll);
 
   useEffect(() => {
     if (!threadId) ensureThreadId(flowId);
@@ -205,6 +208,7 @@ function CopilotChatSession({
         onClose={onClose}
       >
         <CopilotModelPicker />
+        {skipAll && <SkipAllBadge />}
       </CopilotChatHeader>
       <AssistantProgress state={runState} />
       <div className="relative flex min-h-0 flex-1 flex-col">
@@ -220,11 +224,27 @@ function CopilotChatSession({
             key={`${agentId}:${threadId}`}
             agentId={agentId}
             labels={labels}
+            // The slot type also demands CopilotChatInput's static members, which
+            // CopilotChat never reads from a replacement component.
+            input={CopilotChatComposer as unknown as typeof CopilotChatInput}
             className="h-full"
           />
         </CopilotChatConfigurationProvider>
       </div>
     </>
+  );
+}
+
+function SkipAllBadge() {
+  const { t } = useTranslation();
+  return (
+    <span
+      data-testid="assistant-skip-all-badge"
+      title={t("assistant.copilot.skipAllHint")}
+      className="flex h-5 items-center rounded-full border border-muted-foreground/30 bg-muted-foreground/10 px-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
+    >
+      Skip-all
+    </span>
   );
 }
 
