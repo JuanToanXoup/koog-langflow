@@ -1,0 +1,111 @@
+---
+title: Assistant chat and agents
+slug: /assistant-chat-agents
+---
+
+import Icon from "@site/src/components/icon";
+
+The assistant pane on the canvas is a chat that can talk to more than one agent.
+It is built on [CopilotKit](https://github.com/CopilotKit/CopilotKit), and your Langflow server is its runtime: messages go to `/api/v1/copilotkit` and no separate service is involved.
+
+To open the pane, click <Icon name="Langflow" aria-hidden="true"/> **Langflow Assistant** in the flow sidebar, or press <kbd>A</kbd> on the canvas.
+Press <kbd>Esc</kbd> or click outside the pane to close it.
+
+## Choose an agent
+
+The agent picker in the pane header lists the agents your server offers:
+
+* **Langflow Assistant** builds and edits the flow that is open on the canvas, generates components, and answers questions about Langflow.
+  For what it can do, see [Build flows and components with Langflow Assistant](./langflow-assistant.mdx).
+* **Chat** talks to your model directly. It has no tools and doesn't read or change the canvas.
+
+Each agent keeps its own conversation. Switching agents doesn't send anything.
+
+## Choose a model
+
+The model picker next to the agent picker sets the model both agents use.
+It starts with your default language model from **Settings** > **Model Providers** and lists every model you have enabled there.
+If you have not set a default model, the Langflow Assistant uses its preferred model for your provider.
+
+## Conversations
+
+Each flow has its own conversation, kept in your browser.
+Reopening the pane, reloading the page, or coming back to the flow later continues it.
+
+To start over, click <Icon name="SquarePen" aria-hidden="true"/> **New session**.
+The new session starts with no history, and the Langflow Assistant forgets the components it registered in the previous session.
+
+Conversations are stored per browser. They don't follow you to another browser or device, and clearing your browser data removes them.
+
+## Review changes before they reach the canvas
+
+The Langflow Assistant applies small edits, such as adding a component or connecting two components, as it works.
+Each one appears as a line in the reply, and <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Z</kbd> takes it back.
+
+Larger changes wait for you in a card:
+
+* **Proposed plan**: click **Continue** to let the Assistant build it, or **Dismiss** and type what to change. Your next message is sent with the plan as context.
+* **Proposed flow**: add it to the canvas, replace the canvas with it, or dismiss it. After you apply it, **Revert** restores the canvas as it was.
+* **Proposed changes**: accept or dismiss each field edit. When the edit was one step of a larger request, such as "update the prompt and run the flow", the Assistant continues once you've decided on every edit.
+* **Generated component**: review the inputs, outputs, and code, and then click **Approve** to add it to the canvas.
+
+The line under a reply shows its token count and duration.
+When a reply changed the flow, **Revert this edit** restores the flow version from before that reply.
+
+To accept plans and flow proposals without a click, enter `/skip-all`.
+For the other commands and for `@` references to canvas components, see [Use slash commands](./langflow-assistant.mdx#use-slash-commands) and [Reference canvas components in your prompts](./langflow-assistant.mdx#reference-canvas-components-in-your-prompts).
+
+## Add an agent
+
+An agent is a Python class that turns one chat run into a stream of [AG-UI](https://docs.ag-ui.com) events.
+Install it in a package that declares it in the `langflow.copilotkit_agents` entry-point group, and it appears in the agent picker the next time Langflow starts.
+
+```python
+# my_package/agents.py
+from collections.abc import AsyncIterator
+from uuid import uuid4
+
+from ag_ui.core import BaseEvent, RunAgentInput
+from langflow.copilotkit.agents.base import AgentRunContext, CopilotAgent
+from langflow.copilotkit.encoder import text_message
+
+
+class EchoAgent(CopilotAgent):
+    id = "echo"  # A lowercase slug: it is part of the run URL.
+    name = "Echo"  # Shown in the agent picker.
+    description = "Repeats your last message."
+
+    async def run(self, run_input: RunAgentInput, ctx: AgentRunContext) -> AsyncIterator[BaseEvent]:
+        last = next(m for m in reversed(run_input.messages) if m.role == "user")
+        for event in text_message(str(uuid4()), f"You said: {last.content}"):
+            yield event
+```
+
+```toml
+# pyproject.toml of my_package
+[project.entry-points."langflow.copilotkit_agents"]
+echo = "my_package.agents:EchoAgent"
+```
+
+What Langflow provides to an agent:
+
+* `run_input.messages` holds the whole conversation, and `run_input.forwarded_props` carries the open flow (`flow_id`) and the model picked in the pane (`provider`, `model_name`).
+* `ctx.user_id` identifies the signed-in user. `ctx.session_scope()` opens a short-lived database session; don't hold one across a model call.
+* `ctx.cancel` is set when the user clicks **Stop**. Stop yielding when it is set: the pane ends the reply right away.
+* Langflow wraps the events in `RUN_STARTED` and `RUN_FINISHED`, closes messages and tool calls the agent leaves open, and reports an exception as an error in the pane.
+
+A plugin can't replace the built-in `langflow` or `chat` agents, and a plugin that fails to load is logged and skipped.
+
+## Turn the chat off
+
+The chat needs the Langflow Assistant to be available, so `LANGFLOW_AGENTIC_EXPERIENCE=false` turns off the pane as well.
+
+To keep the Assistant but turn off the chat runtime, set `LANGFLOW_COPILOTKIT_CHAT_ENABLED=false`.
+The `/api/v1/copilotkit` endpoints then return `404`.
+
+For more information, see [Supported environment variables](../Develop/environment-variables.mdx#supported-variables).
+
+## See also
+
+* [Build flows and components with Langflow Assistant](./langflow-assistant.mdx)
+* [Global model providers](../Components/components-models.mdx)

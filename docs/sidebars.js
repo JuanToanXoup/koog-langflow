@@ -93,6 +93,11 @@ module.exports = {
           id: "Flows/langflow-assistant",
           label: "Build flows and components with Langflow Assistant"
         },
+        {
+          type: "doc",
+          id: "Flows/assistant-chat-agents",
+          label: "Assistant chat and agents"
+        },
       ],
     },
     {
