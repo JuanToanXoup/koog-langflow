@@ -40,3 +40,20 @@ Server events came from `ag_ui.encoder.EventEncoder` (`ag-ui-protocol==0.1.18`, 
 - `zod`: Langflow has `^3.23.8`, and react-core's peer dependency needs `>=3.25`, so T2.1 must bump it. `@ag-ui/client` and `@ag-ui/core` are pinned exactly at `1.0.2` by react-core; Langflow pins `@ag-ui/client@1.0.0`, as §1 says.
 - Dev-only console warning: "Lit is in dev mode".
 - The client also knows a `POST {base}/agent/{id}/suggest` route. It is not called while `/info` reports `suggestions: false`.
+
+## Implementation notes (Phases 1–4)
+
+Where the build differs from `copilotkit-chat-plan.md`, and why:
+
+- **Tool mapping (T1.5).** `flow_update` is not always `apply_flow_update`. Changes the old panel made the user review stay reviews:
+  `edit_field` events are batched into one `propose_field_edits` call, `propose_plan` becomes a `propose_plan` call, and a `set_flow` without `auto_apply` becomes `propose_flow` (later updates ride along as `tail_updates`).
+  A generated component becomes `propose_component`. Written files and the turn summary (usage, duration, notices, Revert point) are render-only calls `show_written_file` and `show_turn_summary`, so they stay in the transcript.
+- **Review cards are rendered tools, not `useHumanInTheLoop` (T2.6).** A HITL handler holds `copilotkit.runAgent` open until the user answers, and CopilotChat queues every later message behind it, so ignoring a card would freeze the input.
+  A card answers by appending the tool result to the thread. Only answers that continue the build (approved plan, applied edits that were part of a larger request) start a follow-up run; the `langflow` agent ends any other follow-up without calling the model.
+- **History (§0 Sessions).** Option A: each (agent, thread) transcript is kept in `localStorage`. The chat runs on a non-explicit thread through `CopilotChatConfigurationProvider`, so `/connect` is never called and the welcome screen still shows. `/connect` answers an empty stream.
+- **CSS (T2.3).** CopilotKit's Tailwind v4 stylesheet breaks Langflow's Tailwind 3 build and loses to Langflow's unlayered preflight. A Vite plugin (`vite-copilotkit-css.ts`) removes its cascade layers, lowers its base layer to zero specificity, and renames its shadcn theme variables (`--background` and the rest) to `--cpk-theme-*`, which Langflow uses for HSL components.
+- **Errors and retries (T1.5).** CopilotKit logs `RUN_ERROR` to the console only, so the error is also sent as an assistant message. When a turn streamed text that differs from its final `complete` result (a retry), a `MESSAGES_SNAPSHOT` replaces the streamed text.
+- **Model (T2.5).** The `langflow` agent uses the user's default language model from Settings when the panel sends none. The model picker starts from the same default.
+- **State (T2.4).** Thread ids, the chosen agent, the model and the `/history`, `/iterations`, `/skip-all` settings live in a new `copilotChatStore`, not `assistantManagerStore`.
+- **Mentions (T2.7).** `@` inserts the component id into the text, as the old panel did; the assistant reads it from the prompt, so nothing goes into `forwardedProps`.
+- **Deploy (T3.2).** No changes. The frontend's nginx already proxies `/api`, and the runtime sends `X-Accel-Buffering: no` so SSE is not buffered.
