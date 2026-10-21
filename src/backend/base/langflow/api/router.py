@@ -156,6 +156,7 @@ def _include_agentic_router():
     from langflow.agentic.api.router import router as agentic_router
     from langflow.agentic.api.sessions_router import router as agentic_sessions_router
     from langflow.api.v1.agentic_mcp import router as agentic_mcp_router
+    from langflow.copilotkit.api import router as copilotkit_router
 
     # SECURITY (Issue 15): gate the sandbox-management routers on agentic_experience. The
     # code-exec endpoints inside agentic_router (/assist, /assist/stream, /execute) carry the same
@@ -166,6 +167,8 @@ def _include_agentic_router():
     router_v1.include_router(agentic_files_router, dependencies=agentic_gate)
     router_v1.include_router(agentic_sessions_router, dependencies=agentic_gate)
     router_v1.include_router(agentic_mcp_router)
+    # The assistant chat panel's CopilotKit runtime; gated on agentic_experience per route.
+    router_v1.include_router(copilotkit_router)
 
 
 _include_agentic_router()
