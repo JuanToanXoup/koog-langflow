@@ -33,6 +33,7 @@ import { useCopilotChatEnabled } from "./copilot-provider";
 import { useCopilotRuntimeInfo } from "./hooks/use-copilot-runtime-info";
 import { MIN_PANEL_SIZE, usePanelSize } from "./hooks/use-panel-size";
 import { usePersistedThread } from "./hooks/use-persisted-thread";
+import { useWelcomeHandoff } from "./hooks/use-welcome-handoff";
 import { useCanvasTools } from "./tools/use-canvas-tools";
 
 export interface CopilotChatPanelProps {
@@ -166,6 +167,7 @@ function CopilotChatSession({
 
   const { agent } = usePersistedThread(agentId, threadId);
   useCanvasTools();
+  useWelcomeHandoff({ isOpen, threadId });
   const runState = useAssistantRunState(agent);
 
   // The canvas locks while the assistant works on it, as it did with the old panel.
