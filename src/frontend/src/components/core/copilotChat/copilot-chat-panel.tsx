@@ -21,6 +21,7 @@ import useCopilotChatStore, {
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { cn } from "@/utils/utils";
 import { CopilotChatHeader } from "./components/copilot-chat-header";
+import { CopilotModelPicker } from "./components/copilot-model-picker";
 import { useCopilotChatEnabled } from "./copilot-provider";
 import { useCopilotRuntimeInfo } from "./hooks/use-copilot-runtime-info";
 import { MIN_PANEL_SIZE, usePanelSize } from "./hooks/use-panel-size";
@@ -182,7 +183,9 @@ function CopilotChatSession({
         onNewSession={handleNewSession}
         canStartNewSession={agent.messages.length > 0}
         onClose={onClose}
-      />
+      >
+        <CopilotModelPicker />
+      </CopilotChatHeader>
       <div className="relative flex min-h-0 flex-1 flex-col">
         <CopilotChatConfigurationProvider
           agentId={agentId}

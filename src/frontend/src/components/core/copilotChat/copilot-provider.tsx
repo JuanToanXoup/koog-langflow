@@ -6,6 +6,7 @@ import { ENABLE_COPILOTKIT_CHAT } from "@/customization/feature-flags";
 import { useCustomApiHeaders } from "@/customization/hooks/use-custom-api-headers";
 import { getFetchCredentials } from "@/customization/utils/get-fetch-credentials";
 import { useUtilityStore } from "@/stores/utilityStore";
+import { useForwardedProps } from "./hooks/use-forwarded-props";
 
 export const COPILOTKIT_RUNTIME_URL = `${BASE_URL_API}copilotkit`;
 export const DEFAULT_COPILOT_AGENT_ID = "langflow";
@@ -36,11 +37,12 @@ export function CopilotProvider({
   properties,
 }: {
   children: ReactNode;
-  /** Sent to every agent run as ``RunAgentInput.forwardedProps``. */
+  /** Sent to every agent run as ``RunAgentInput.forwardedProps``; defaults to {@link useForwardedProps}. */
   properties?: Record<string, unknown>;
 }) {
   const enabled = useCopilotChatEnabled();
   const headers = useCustomApiHeaders();
+  const forwardedProps = useForwardedProps();
 
   if (!enabled) return <>{children}</>;
 
@@ -50,7 +52,7 @@ export function CopilotProvider({
       agentId={DEFAULT_COPILOT_AGENT_ID}
       credentials={getFetchCredentials()}
       headers={headers}
-      properties={properties}
+      properties={properties ?? forwardedProps}
       enableInspector={false}
     >
       {children}

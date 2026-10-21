@@ -12,6 +12,8 @@ const THREADS_KEY = "langflow-copilot-threads";
 const AGENT_KEY = "langflow-copilot-agent";
 const MESSAGES_PREFIX = "langflow-copilot-messages:";
 const MESSAGES_INDEX_KEY = "langflow-copilot-messages-index";
+/** Shared with the welcome overlay's model picker, so a choice made there carries over. */
+export const SELECTED_MODEL_KEY = "langflow-assistant-selected-model";
 
 /** Transcripts kept before the least recently saved one is dropped. */
 export const MAX_STORED_THREADS = 30;
@@ -77,6 +79,31 @@ export function readAgentId(): string | null {
 
 export function writeAgentId(agentId: string): void {
   writeJson(AGENT_KEY, agentId);
+}
+
+export interface StoredModel {
+  id: string;
+  name: string;
+  provider: string;
+  displayName: string;
+}
+
+export function readSelectedModel(): StoredModel | null {
+  const value = readJson<Partial<StoredModel> | null>(SELECTED_MODEL_KEY, null);
+  if (!value || typeof value !== "object") return null;
+  const { provider, name } = value;
+  if (typeof provider !== "string" || typeof name !== "string") return null;
+  if (!provider || !name) return null;
+  return {
+    id: value.id || `${provider}-${name}`,
+    name,
+    provider,
+    displayName: value.displayName || name,
+  };
+}
+
+export function writeSelectedModel(model: StoredModel): void {
+  writeJson(SELECTED_MODEL_KEY, model);
 }
 
 function messagesKey(agentId: string, threadId: string): string {

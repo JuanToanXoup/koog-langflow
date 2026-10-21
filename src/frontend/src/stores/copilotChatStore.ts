@@ -1,9 +1,12 @@
 import { create } from "zustand";
+import type { AssistantModel } from "@/components/core/assistantPanel/assistant-panel.types";
 import {
   newThreadId,
   readAgentId,
+  readSelectedModel,
   readThreadIds,
   writeAgentId,
+  writeSelectedModel,
   writeThreadIds,
 } from "@/components/core/copilotChat/helpers/thread-storage";
 
@@ -25,6 +28,9 @@ interface CopilotChatState {
   ensureThreadId: (flowId: string) => string;
   /** Start a fresh thread for the flow and return its id. */
   startNewThread: (flowId: string) => string;
+  /** The model both agents run on; sent as ``forwardedProps.provider``/``model_name``. */
+  selectedModel: AssistantModel | null;
+  setSelectedModel: (model: AssistantModel | null) => void;
 }
 
 const useCopilotChatStore = create<CopilotChatState>((set, get) => ({
@@ -45,6 +51,11 @@ const useCopilotChatStore = create<CopilotChatState>((set, get) => ({
     writeThreadIds(threadIds);
     set({ threadIds });
     return threadId;
+  },
+  selectedModel: readSelectedModel(),
+  setSelectedModel: (selectedModel) => {
+    if (selectedModel) writeSelectedModel(selectedModel);
+    set({ selectedModel });
   },
 }));
 
