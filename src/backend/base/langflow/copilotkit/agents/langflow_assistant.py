@@ -40,6 +40,7 @@ from uuid import uuid4
 
 from ag_ui.core import (
     CustomEvent,
+    MessagesSnapshotEvent,
     RunErrorEvent,
     RunFinishedEvent,
     StepFinishedEvent,
@@ -115,10 +116,22 @@ def parse_sse_payloads(raw: str) -> list[dict[str, Any]]:
 class AssistantEventTranslator:
     """Turns the assistant's SSE event dicts into AG-UI events, one turn at a time."""
 
-    def __init__(self, thread_id: str, run_id: str, *, new_id: Callable[[], str] | None = None) -> None:
+    def __init__(
+        self,
+        thread_id: str,
+        run_id: str,
+        *,
+        new_id: Callable[[], str] | None = None,
+        history: Sequence[dict[str, Any]] | None = None,
+    ) -> None:
         self.thread_id = thread_id
         self.run_id = run_id
         self._new_id = new_id or (lambda: str(uuid4()))
+        # The thread as the client sent it, for a MESSAGES_SNAPSHOT correction;
+        # None turns corrections off.
+        self._history = list(history) if history is not None else None
+        # This run's assistant messages as the client has assembled them so far.
+        self._turn: list[dict[str, Any]] = []
         self._message_id: str | None = None
         self._parent_id: str | None = None
         self._streamed_text = False
@@ -147,6 +160,7 @@ class AssistantEventTranslator:
             return []
         out, message_id = self._open_message()
         out.append(TextMessageContentEvent(message_id=message_id, delta=chunk))
+        self._turn_message(message_id)["content"] += chunk
         self._streamed_text = True
         return out
 
@@ -201,7 +215,10 @@ class AssistantEventTranslator:
         if isinstance(result, str) and result and not self._streamed_text and not component_code:
             message_id = self._new_id()
             out += list(text_message(message_id, result))
+            self._turn_message(message_id)["content"] = result
             self._parent_id = message_id
+        elif isinstance(result, str) and result and self._streamed_text and not component_code:
+            out += self._correct_streamed_text(result)
         out += self._flush_proposals(continuation_expected=data.get("continuation_expected") is True)
         if isinstance(component_code, str) and component_code:
             out += self._tool_call(
@@ -227,8 +244,16 @@ class AssistantEventTranslator:
         out = [*self._close_message(), *self._flush_proposals(continuation_expected=False), *self._close_step()]
         raw_message = payload.get("message")
         message = raw_message if isinstance(raw_message, str) and raw_message else "The assistant failed."
-        detail = payload.get("detail")
-        if isinstance(detail, dict) and detail:
+        detail = _as_dict(payload.get("detail"))
+        # CopilotKit reports RUN_ERROR to the console only; say it in the chat too,
+        # where it stays in the transcript next to the turn that failed.
+        text = f"**Error:** {message}"
+        recommendation = detail.get("recommendation")
+        if isinstance(recommendation, str) and recommendation:
+            text += f"\n\n{recommendation}"
+        message_id = self._new_id()
+        out += list(text_message(message_id, text))
+        if detail:
             out.append(CustomEvent(name="langflow.error", value=payload))
         out.append(RunErrorEvent(message=message, code="assistant_error"))
         self.terminated = True
@@ -241,6 +266,35 @@ class AssistantEventTranslator:
         return out
 
     # -- helpers ---------------------------------------------------------------
+
+    def _turn_message(self, message_id: str) -> dict[str, Any]:
+        for message in self._turn:
+            if message["id"] == message_id:
+                return message
+        message = {"id": message_id, "role": "assistant", "content": ""}
+        self._turn.append(message)
+        return message
+
+    def _correct_streamed_text(self, result: str) -> list[BaseEvent]:
+        """Replace what streamed with the turn's final answer when the two differ.
+
+        A retried or self-corrected turn streams every attempt, but its
+        ``complete`` result is the answer that stands (the old panel swapped it in
+        at completion). AG-UI cannot edit sent text, so the thread is resent as a
+        MESSAGES_SNAPSHOT with the streamed text replaced and tool calls kept.
+        """
+        streamed = "".join(m["content"] for m in self._turn)
+        if self._history is None or " ".join(streamed.split()) == " ".join(result.split()):
+            return []
+        replaced = False
+        for message in self._turn:
+            if message["content"] and not replaced:
+                message["content"] = result
+                replaced = True
+            elif message["content"]:
+                message["content"] = ""
+        turn = [m for m in self._turn if m["content"] or m.get("toolCalls")]
+        return [MessagesSnapshotEvent.model_validate({"messages": [*self._history, *turn]})]
 
     def _open_message(self) -> tuple[list[BaseEvent], str]:
         if self._message_id is not None:
@@ -267,7 +321,12 @@ class AssistantEventTranslator:
         out = self._close_message()
         if self._parent_id is None:
             self._parent_id = self._new_id()
-        out += list(tool_call(self._new_id(), name, args, parent_message_id=self._parent_id))
+        call_id = self._new_id()
+        args_json = json.dumps(args)
+        self._turn_message(self._parent_id).setdefault("toolCalls", []).append(
+            {"id": call_id, "type": "function", "function": {"name": name, "arguments": args_json}}
+        )
+        out += list(tool_call(call_id, name, args_json, parent_message_id=self._parent_id))
         return out
 
     def _flush_proposals(self, *, continuation_expected: bool) -> list[BaseEvent]:
@@ -433,7 +492,11 @@ class LangflowAssistantAgent(CopilotAgent):
                 yield event
             return
 
-        translator = AssistantEventTranslator(run_input.thread_id, run_input.run_id)
+        translator = AssistantEventTranslator(
+            run_input.thread_id,
+            run_input.run_id,
+            history=[m.model_dump(by_alias=True, exclude_none=True) for m in run_input.messages],
+        )
         with scoped_model_provider_policy_for_flow(flow, user_id=ctx.user_id, is_superuser=ctx.is_superuser):
             stream = self._stream(
                 input_value=text,

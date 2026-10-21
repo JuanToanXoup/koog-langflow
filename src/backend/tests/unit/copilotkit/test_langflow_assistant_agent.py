@@ -231,6 +231,42 @@ class TestTranslator:
         assert translator.terminated
         assert translator.translate({"event": "token", "chunk": "late"}) == []
 
+    def test_should_say_the_error_in_the_chat(self):
+        translator = _translator()
+        events = translator.translate(
+            {"event": "error", "message": "Rate limited", "detail": {"recommendation": "Wait a minute."}}
+        )
+
+        text = "".join(e.delta for e in events if e.type == "TEXT_MESSAGE_CONTENT")
+        assert text == "**Error:** Rate limited\n\nWait a minute."
+
+    def test_should_replace_retried_text_with_the_final_answer(self):
+        history = [{"id": "u1", "role": "user", "content": "hi"}]
+        ids = itertools.count(1)
+        translator = AssistantEventTranslator("t", "r", new_id=lambda: f"id{next(ids)}", history=history)
+        events = []
+        for payload in (
+            {"event": "token", "chunk": "First try, cut off"},
+            {"event": "progress", "step": "retrying", "attempt": 2, "max_attempts": 3},
+            {"event": "token", "chunk": "Final answer."},
+            {"event": "flow_update", "action": "connect", "edge": {"source": "a", "target": "b"}},
+            {"event": "complete", "data": {"result": "Final answer, cleaned up."}},
+        ):
+            events += translator.translate(payload)
+
+        snapshot = next(e for e in events if e.type == "MESSAGES_SNAPSHOT")
+        messages = [m.model_dump(by_alias=True, exclude_none=True) for m in snapshot.messages]
+        assert messages[0] == history[0]
+        assert [m.get("content") for m in messages[1:]] == ["Final answer, cleaned up.", ""]
+        assert messages[2]["toolCalls"][0]["function"]["name"] == "apply_flow_update"
+
+    def test_should_not_resend_the_thread_when_the_stream_was_the_answer(self):
+        translator = AssistantEventTranslator("t", "r", history=[])
+        events = translator.translate({"event": "token", "chunk": "Same  answer"})
+        events += translator.translate({"event": "complete", "data": {"result": "Same answer"}})
+
+        assert "MESSAGES_SNAPSHOT" not in _summary(events)
+
     def test_should_finish_cancelled_on_cancel(self):
         translator = _translator()
         events = translator.translate({"event": "cancelled", "message": "Generation cancelled by user"})
