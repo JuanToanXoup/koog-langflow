@@ -1,6 +1,6 @@
+import type { PendingFlowProposal } from "@/components/core/copilotChat/types";
 import type {
   AgenticErrorDetail,
-  AgenticFlowUpdateEvent,
   AgenticProgressState,
   AgenticResult,
   AgenticStepType,
@@ -186,19 +186,6 @@ export interface PendingPlanProposal {
   markdown: string;
 }
 
-export interface PendingFlowProposal {
-  flow: Record<string, unknown>;
-  name?: string;
-  nodeCount: number;
-  edgeCount: number;
-  /**
-   * Events that arrived AFTER the gating set_flow. Per the agent prompt
-   * this should never happen, but if it does the tail events are buffered
-   * here so they replay in order when the user clicks Continue.
-   */
-  tailUpdates?: AgenticFlowUpdateEvent[];
-}
-
 export interface AssistantModel {
   id: string;
   name: string;
@@ -233,3 +220,5 @@ export interface SessionHistoryEntry {
   lastActiveAt: string;
   messages: SerializedAssistantMessage[];
 }
+
+export type { PendingFlowProposal };

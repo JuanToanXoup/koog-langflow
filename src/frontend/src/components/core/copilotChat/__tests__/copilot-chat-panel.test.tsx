@@ -26,6 +26,12 @@ jest.mock("@/contexts/permissionsContext", () => ({
 
 jest.mock("@/assets/langflow_assistant.svg", () => "mock-assistant-icon.svg");
 
+// The cards pull in the code viewer's ESM-only highlighter; they have their own tests.
+jest.mock("../tools/use-canvas-tools", () => ({ useCanvasTools: jest.fn() }));
+jest.mock("../components/copilot-model-picker", () => ({
+  CopilotModelPicker: () => null,
+}));
+
 jest.mock("@/components/ui/sidebar", () => ({
   useSidebar: () => ({ open: false }),
 }));

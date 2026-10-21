@@ -3038,5 +3038,7 @@
   "assistant.close": "Cerrar asistente",
   "assistant.agentPicker.label": "Agente",
   "assistant.copilot.placeholder": "Pregunta, crea o edita…",
-  "assistant.copilot.welcome": "¿Cómo puedo ayudarte con este flujo?"
+  "assistant.copilot.welcome": "¿Cómo puedo ayudarte con este flujo?",
+  "assistant.copilot.flowReplaced": "Se reemplazó el flujo en el lienzo",
+  "assistant.copilot.planDismissed": "Plan descartado."
 }

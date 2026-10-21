@@ -3,6 +3,8 @@ import { cloneDeep } from "lodash";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ShortUniqueId from "short-unique-id";
+import { applyFlowProposalToCanvas } from "@/components/core/copilotChat/helpers/apply-flow-proposal";
+import { applyFlowUpdate as applyFlowUpdateImpl } from "@/components/core/copilotChat/helpers/apply-flow-update";
 import {
   type AgenticFlowUpdateEvent,
   type AgenticStepType,
@@ -21,8 +23,6 @@ import type {
   AssistantMessage,
   AssistantModel,
 } from "../assistant-panel.types";
-import { applyFlowProposalToCanvas } from "../helpers/apply-flow-proposal";
-import { applyFlowUpdate as applyFlowUpdateImpl } from "../helpers/apply-flow-update";
 import {
   buildRefinementInput,
   buildTaskFromEvent,

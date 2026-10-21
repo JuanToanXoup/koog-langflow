@@ -13,7 +13,7 @@ import {
   type ConstraintViolation,
   filterPlaceableSelection,
 } from "@/utils/componentConstraints";
-import type { PendingFlowProposal } from "../assistant-panel.types";
+import type { PendingFlowProposal } from "../types";
 import { applyFlowUpdate, notifyNodesUntilMounted } from "./apply-flow-update";
 import { mergeFlowIntoCanvas } from "./merge-flow-into-canvas";
 

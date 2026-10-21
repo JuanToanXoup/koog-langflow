@@ -3038,5 +3038,7 @@
   "assistant.close": "Fermer l'assistant",
   "assistant.agentPicker.label": "Agent",
   "assistant.copilot.placeholder": "Demandez, créez ou modifiez…",
-  "assistant.copilot.welcome": "Comment puis-je vous aider avec ce flux ?"
+  "assistant.copilot.welcome": "Comment puis-je vous aider avec ce flux ?",
+  "assistant.copilot.flowReplaced": "Flux remplacé sur le canevas",
+  "assistant.copilot.planDismissed": "Plan ignoré."
 }

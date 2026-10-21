@@ -15,17 +15,23 @@ import { AssistantDisabledState } from "@/components/core/assistantPanel/compone
 import { useSidebar } from "@/components/ui/sidebar";
 import { useIsFlowReadOnly } from "@/contexts/permissionsContext";
 import { BASE_URL_API } from "@/customization/config-constants";
+import useAssistantManagerStore from "@/stores/assistantManagerStore";
 import useCopilotChatStore, {
   DEFAULT_COPILOT_AGENT,
 } from "@/stores/copilotChatStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { cn } from "@/utils/utils";
+import {
+  AssistantProgress,
+  useAssistantRunState,
+} from "./components/assistant-progress";
 import { CopilotChatHeader } from "./components/copilot-chat-header";
 import { CopilotModelPicker } from "./components/copilot-model-picker";
 import { useCopilotChatEnabled } from "./copilot-provider";
 import { useCopilotRuntimeInfo } from "./hooks/use-copilot-runtime-info";
 import { MIN_PANEL_SIZE, usePanelSize } from "./hooks/use-panel-size";
 import { usePersistedThread } from "./hooks/use-persisted-thread";
+import { useCanvasTools } from "./tools/use-canvas-tools";
 
 export interface CopilotChatPanelProps {
   isOpen: boolean;
@@ -156,6 +162,20 @@ function CopilotChatSession({
   }, [agents, agentId, setAgentId]);
 
   const { agent } = usePersistedThread(agentId, threadId);
+  useCanvasTools();
+  const runState = useAssistantRunState(agent);
+
+  // The canvas locks while the assistant works on it, as it did with the old panel.
+  const setAssistantProcessing = useAssistantManagerStore(
+    (state) => state.setAssistantProcessing,
+  );
+  useEffect(() => {
+    setAssistantProcessing(runState.running);
+  }, [runState.running, setAssistantProcessing]);
+  useEffect(
+    () => () => setAssistantProcessing(false),
+    [setAssistantProcessing],
+  );
 
   const handleNewSession = useCallback(() => {
     if (agent.isRunning) copilotkit.stopAgent({ agent });
@@ -186,6 +206,7 @@ function CopilotChatSession({
       >
         <CopilotModelPicker />
       </CopilotChatHeader>
+      <AssistantProgress state={runState} />
       <div className="relative flex min-h-0 flex-1 flex-col">
         <CopilotChatConfigurationProvider
           agentId={agentId}

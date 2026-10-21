@@ -3037,5 +3037,7 @@
   "assistant.close": "Close assistant",
   "assistant.agentPicker.label": "Agent",
   "assistant.copilot.placeholder": "Ask, build, or edit…",
-  "assistant.copilot.welcome": "How can I help with this flow?"
+  "assistant.copilot.welcome": "How can I help with this flow?",
+  "assistant.copilot.flowReplaced": "Replaced the flow on the canvas",
+  "assistant.copilot.planDismissed": "Plan dismissed."
 }

@@ -10,6 +10,8 @@ import {
 interface FlowEditCarouselProps {
   actions: FlowAction[];
   onUpdateAction: (id: string, status: "applied" | "dismissed") => void;
+  /** Runs right before an accepted edit mutates the canvas (e.g. an undo snapshot). */
+  onBeforeApply?: () => void;
 }
 
 // Long edit descriptions (the LLM restates the entire new value, e.g. a full
@@ -137,6 +139,7 @@ function FlowEditCard({
 export function FlowEditCarousel({
   actions,
   onUpdateAction,
+  onBeforeApply,
 }: FlowEditCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const setNodes = useFlowStore((state) => state.setNodes);
@@ -150,6 +153,7 @@ export function FlowEditCarousel({
   const applyActionPatch = useCallback(
     (action: (typeof actions)[number]) => {
       if (!action?.patch) return;
+      onBeforeApply?.();
       for (const op of action.patch) {
         if (op.op !== "replace") continue;
         // Parse the path: /data/nodes/{idx}/data/node/template/{field}/value
@@ -188,7 +192,7 @@ export function FlowEditCarousel({
         }
       }
     },
-    [setNodes],
+    [setNodes, onBeforeApply],
   );
 
   const handleAccept = useCallback(() => {

@@ -3038,5 +3038,7 @@
   "assistant.close": "Fechar assistente",
   "assistant.agentPicker.label": "Agente",
   "assistant.copilot.placeholder": "Pergunte, crie ou edite…",
-  "assistant.copilot.welcome": "Como posso ajudar com este fluxo?"
+  "assistant.copilot.welcome": "Como posso ajudar com este fluxo?",
+  "assistant.copilot.flowReplaced": "O fluxo na tela foi substituído",
+  "assistant.copilot.planDismissed": "Plano descartado."
 }

@@ -12,7 +12,7 @@
  * model involved.
  */
 
-import type { PendingFlowProposal } from "../../assistant-panel.types";
+import type { PendingFlowProposal } from "../../types";
 import { applyFlowProposalToCanvas } from "../apply-flow-proposal";
 
 type UpdateNodeInternalsFn = Parameters<typeof applyFlowProposalToCanvas>[2];

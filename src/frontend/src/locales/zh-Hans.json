@@ -3037,5 +3037,7 @@
   "assistant.close": "关闭助手",
   "assistant.agentPicker.label": "智能体",
   "assistant.copilot.placeholder": "提问、构建或编辑…",
-  "assistant.copilot.welcome": "我能为这个流程做些什么？"
+  "assistant.copilot.welcome": "我能为这个流程做些什么？",
+  "assistant.copilot.flowReplaced": "已替换画布上的流程",
+  "assistant.copilot.planDismissed": "已放弃该计划。"
 }

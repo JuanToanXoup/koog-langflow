@@ -3038,5 +3038,7 @@
   "assistant.close": "アシスタントを閉じる",
   "assistant.agentPicker.label": "エージェント",
   "assistant.copilot.placeholder": "質問、作成、編集…",
-  "assistant.copilot.welcome": "このフローについて何をお手伝いしましょうか？"
+  "assistant.copilot.welcome": "このフローについて何をお手伝いしましょうか？",
+  "assistant.copilot.flowReplaced": "キャンバス上のフローを置き換えました",
+  "assistant.copilot.planDismissed": "プランを破棄しました。"
 }
