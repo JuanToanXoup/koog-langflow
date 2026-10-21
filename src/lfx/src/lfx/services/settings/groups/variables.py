@@ -41,6 +41,14 @@ class VariablesSettings(BaseModel):
     with it, which is why it is capped at all.
     """
 
+    copilotkit_chat_enabled: bool = True
+    """Whether the assistant panel uses the CopilotKit chat (``/api/v1/copilotkit``).
+
+    On by default. Set it to False to fall back to the previous assistant panel while the
+    CopilotKit chat rolls out; the runtime routes then answer 404. Turning off
+    ``agentic_experience`` withholds both panels regardless of this setting.
+    """
+
     variables_to_get_from_environment: list[str] = VARIABLES_TO_GET_FROM_ENVIRONMENT
     """List of environment variables to get from the environment and store in the database."""
 

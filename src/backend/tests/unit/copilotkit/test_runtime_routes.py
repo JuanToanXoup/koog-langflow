@@ -211,6 +211,20 @@ class TestGate:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    @pytest.mark.usefixtures("agentic_enabled")
+    async def test_should_404_when_the_copilotkit_chat_is_off(
+        self, client: AsyncClient, logged_in_headers, monkeypatch
+    ):
+        from langflow.services.deps import get_settings_service
+
+        monkeypatch.setattr(get_settings_service().settings, "copilotkit_chat_enabled", False)
+
+        info = await client.get(f"{BASE}/info", headers=logged_in_headers)
+        run = await client.post(f"{BASE}/agent/echo/run", headers=logged_in_headers, json=_run_body())
+
+        assert info.status_code == status.HTTP_404_NOT_FOUND
+        assert run.status_code == status.HTTP_404_NOT_FOUND
+
 
 @pytest.mark.usefixtures("agentic_enabled")
 class TestRun:

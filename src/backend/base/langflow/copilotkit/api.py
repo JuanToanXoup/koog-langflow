@@ -26,6 +26,7 @@ from ag_ui.core import EventType, RunAgentInput, RunErrorEvent, RunFinishedEvent
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import StreamingResponse
 from lfx.log.logger import logger
+from lfx.services.deps import get_settings_service
 from pydantic import ValidationError
 
 from langflow.agentic.api.deps import enforce_agentic_component_admin, require_agentic_experience
@@ -43,11 +44,18 @@ if TYPE_CHECKING:
 
 KEEP_ALIVE_SECONDS = 15.0
 
+
+def require_copilotkit_chat() -> None:
+    """404 every runtime route when an operator turned the CopilotKit chat off."""
+    if not get_settings_service().settings.copilotkit_chat_enabled:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="This endpoint is not available")
+
+
 router = APIRouter(
     prefix="/copilotkit",
     tags=["CopilotKit"],
     include_in_schema=False,
-    dependencies=[Depends(require_agentic_experience)],
+    dependencies=[Depends(require_agentic_experience), Depends(require_copilotkit_chat)],
 )
 
 

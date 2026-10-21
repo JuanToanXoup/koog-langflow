@@ -57,6 +57,28 @@ async def test_get_config_mirrors_assistant_message_length(client: AsyncClient, 
     assert response.json()["assistant_max_message_length"] == 6000
 
 
+@pytest.mark.parametrize("enabled", [True, False])
+async def test_get_config_mirrors_the_copilotkit_chat_setting(
+    client: AsyncClient, logged_in_headers: dict, monkeypatch, enabled
+):
+    """The frontend mounts the CopilotKit chat only when its runtime routes are served."""
+    from lfx.services.deps import get_settings_service
+
+    monkeypatch.setattr(get_settings_service().settings, "copilotkit_chat_enabled", enabled)
+
+    response = await client.get("api/v1/config", headers=logged_in_headers)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["copilotkit_chat_enabled"] is enabled
+
+
+async def test_public_config_omits_the_copilotkit_chat_setting(client: AsyncClient):
+    response = await client.get("api/v1/config")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert "copilotkit_chat_enabled" not in response.json()
+
+
 @pytest.mark.parametrize(
     ("pgvector", "opensearch", "expected"),
     [

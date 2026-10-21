@@ -493,6 +493,9 @@ class ConfigResponse(BaseConfigResponse):
     # cap the API does. A UI-only constant drifted below the API's and silently truncated long
     # prompts before they were ever sent.
     assistant_max_message_length: int = 2000
+    # Mirrors LANGFLOW_COPILOTKIT_CHAT_ENABLED so the frontend mounts the CopilotKit chat
+    # only when its runtime routes under /api/v1/copilotkit are being served.
+    copilotkit_chat_enabled: bool = True
     # True when local Chroma may back a knowledge base or memory base — i.e. on
     # the dev profile. The production profile refuses it (vectors on the serving
     # box's own disk don't survive a restart and can't be shared across
@@ -570,6 +573,7 @@ class ConfigResponse(BaseConfigResponse):
             a2a_enabled=settings.a2a_enabled,
             agentic_experience=settings.agentic_experience,
             assistant_max_message_length=settings.assistant_max_message_length,
+            copilotkit_chat_enabled=settings.copilotkit_chat_enabled,
             local_vector_store_available=settings.deployment_profile != "prod",
             default_vector_store_backend=resolve_default_kb_backend(),
         )

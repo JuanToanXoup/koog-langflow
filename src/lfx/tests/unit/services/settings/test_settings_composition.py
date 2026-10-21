@@ -332,6 +332,7 @@ EXPECTED_FIELDS = {
     "substitute_outdated_component_code",
     # VariablesSettings: operator-tunable Langflow Assistant prompt length
     "assistant_max_message_length",
+    "copilotkit_chat_enabled",
     # ---- Serving-plane end-user identity ----
     # SecuritySettings
     "serving_end_user_header",
@@ -392,6 +393,7 @@ def test_critical_defaults_unchanged():
     assert settings.warm_registry_max_total_bytes == 32_000_000
     assert settings.dev is False
     assert settings.agentic_experience is True
+    assert settings.copilotkit_chat_enabled is True
     assert settings.developer_api_enabled is False
     assert settings.dangerously_allow_multi_worker_without_shared_queue is False
     assert settings.knowledge_base_storage_pool_size == 20
@@ -587,6 +589,7 @@ def test_yaml_round_trip():
             False,
         ),
         ("LANGFLOW_VARIABLE_STORE", "kubernetes", "variable_store", "kubernetes"),
+        ("LANGFLOW_COPILOTKIT_CHAT_ENABLED", "false", "copilotkit_chat_enabled", False),
     ],
 )
 def test_env_var_round_trip(monkeypatch, env_var, env_value, field, expected):
