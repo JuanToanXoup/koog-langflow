@@ -27,7 +27,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import StreamingResponse
 from lfx.log.logger import logger
 from lfx.services.deps import get_settings_service
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from langflow.agentic.api.deps import enforce_agentic_component_admin, require_agentic_experience
 from langflow.api.utils.core import CurrentActiveUser  # noqa: TC001 — FastAPI Depends alias needs the runtime symbol
@@ -203,8 +203,8 @@ async def stream_run(
 
     async def pump() -> None:
         try:
-            async for event in agent.run(run_input, ctx):
-                await queue.put(("event", event))
+            async for agent_event in agent.run(run_input, ctx):
+                await queue.put(("event", agent_event))
         except asyncio.CancelledError:
             raise
         except Exception as exc:  # noqa: BLE001 - reported to the client as RUN_ERROR
@@ -215,16 +215,16 @@ async def stream_run(
 
     agent_task = asyncio.create_task(pump())
     cancelled = asyncio.create_task(ctx.cancel.wait())
-    next_item: asyncio.Task | None = None
+    next_item: asyncio.Task[tuple[str, Any]] | None = None
     try:
         while not envelope.closed:
-            if next_item is None:
-                next_item = asyncio.create_task(queue.get())
+            pending_item = next_item if next_item is not None else asyncio.create_task(queue.get())
+            next_item = pending_item
             done, _ = await asyncio.wait(
-                {next_item, cancelled}, timeout=keep_alive_seconds, return_when=asyncio.FIRST_COMPLETED
+                {pending_item, cancelled}, timeout=keep_alive_seconds, return_when=asyncio.FIRST_COMPLETED
             )
-            if next_item in done:
-                kind, payload = next_item.result()
+            if pending_item in done:
+                kind, payload = pending_item.result()
                 next_item = None
                 if kind == "event":
                     events = envelope.admit(payload)
@@ -265,7 +265,7 @@ def _check_agent_access(agent: CopilotAgent, user: Any) -> None:
         enforce_agentic_component_admin(is_superuser=bool(user.is_superuser))
 
 
-async def _parse_body(request: Request, model: type, *, optional: bool = False) -> Any:
+async def _parse_body(request: Request, model: type[BaseModel], *, optional: bool = False) -> Any:
     raw = await request.body()
     if optional and not raw.strip():
         return model()

@@ -91,6 +91,10 @@ def build_refinement_input(dismissed_plan_markdown: str, user_refinement: str) -
     )
 
 
+def _as_dict(value: Any) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
 def parse_sse_payloads(raw: str) -> list[dict[str, Any]]:
     """The JSON objects in one or more ``data: {...}`` SSE frames."""
     payloads = []
@@ -139,8 +143,8 @@ class AssistantEventTranslator:
         chunk = payload.get("chunk")
         if not isinstance(chunk, str) or not chunk:
             return []
-        out = self._open_message()
-        out.append(TextMessageContentEvent(message_id=self._message_id, delta=chunk))
+        out, message_id = self._open_message()
+        out.append(TextMessageContentEvent(message_id=message_id, delta=chunk))
         self._streamed_text = True
         return out
 
@@ -154,7 +158,8 @@ class AssistantEventTranslator:
         out.append(CustomEvent(name="langflow.progress", value=payload))
         return out
 
-    def _on_tool_start(self, payload: dict[str, Any]) -> list[BaseEvent]:
+    @staticmethod
+    def _on_tool_start(payload: dict[str, Any]) -> list[BaseEvent]:
         return [CustomEvent(name="langflow.tool_start", value=payload)]
 
     def _on_flow_update(self, payload: dict[str, Any]) -> list[BaseEvent]:
@@ -168,7 +173,7 @@ class AssistantEventTranslator:
             self._pending_edits.append(payload)
             return []
         if action == "set_flow" and not payload.get("auto_apply"):
-            flow = payload.get("flow") if isinstance(payload.get("flow"), dict) else {}
+            flow = _as_dict(payload.get("flow"))
             self._pending_flow = {**_flow_summary(flow), "tail_updates": []}
             return []
         if action == "propose_plan":
@@ -177,8 +182,7 @@ class AssistantEventTranslator:
         return self._tool_call(APPLY_FLOW_UPDATE, {"value": payload})
 
     def _on_flow_preview(self, payload: dict[str, Any]) -> list[BaseEvent]:
-        flow = payload.get("flow") if isinstance(payload.get("flow"), dict) else {}
-        summary = _flow_summary(flow)
+        summary = _flow_summary(_as_dict(payload.get("flow")))
         if isinstance(payload.get("name"), str) and payload["name"]:
             summary["name"] = payload["name"]
         return self._tool_call(PROPOSE_FLOW, {"value": {**summary, "tail_updates": []}})
@@ -188,7 +192,7 @@ class AssistantEventTranslator:
         return [CustomEvent(name="langflow.file_written", value=payload), *self._tool_call(SHOW_WRITTEN_FILE, file)]
 
     def _on_complete(self, payload: dict[str, Any]) -> list[BaseEvent]:
-        data = payload.get("data") if isinstance(payload.get("data"), dict) else {}
+        data = _as_dict(payload.get("data"))
         out = self._close_message()
         result = data.get("result")
         component_code = data.get("component_code")
@@ -219,7 +223,8 @@ class AssistantEventTranslator:
 
     def _on_error(self, payload: dict[str, Any]) -> list[BaseEvent]:
         out = [*self._close_message(), *self._flush_proposals(continuation_expected=False), *self._close_step()]
-        message = payload.get("message") if isinstance(payload.get("message"), str) else "The assistant failed."
+        raw_message = payload.get("message")
+        message = raw_message if isinstance(raw_message, str) and raw_message else "The assistant failed."
         detail = payload.get("detail")
         if isinstance(detail, dict) and detail:
             out.append(CustomEvent(name="langflow.error", value=payload))
@@ -235,12 +240,12 @@ class AssistantEventTranslator:
 
     # -- helpers ---------------------------------------------------------------
 
-    def _open_message(self) -> list[BaseEvent]:
+    def _open_message(self) -> tuple[list[BaseEvent], str]:
         if self._message_id is not None:
-            return []
-        self._message_id = self._new_id()
-        self._parent_id = self._message_id
-        return [TextMessageStartEvent(message_id=self._message_id, role="assistant")]
+            return [], self._message_id
+        message_id = self._new_id()
+        self._message_id = self._parent_id = message_id
+        return [TextMessageStartEvent(message_id=message_id, role="assistant")], message_id
 
     def _close_message(self) -> list[BaseEvent]:
         if self._message_id is None:
@@ -277,10 +282,13 @@ class AssistantEventTranslator:
 
 
 def _flow_summary(flow: dict[str, Any]) -> dict[str, Any]:
-    data = flow.get("data") if isinstance(flow.get("data"), dict) else {}
-    nodes = data.get("nodes") if isinstance(data.get("nodes"), list) else []
-    edges = data.get("edges") if isinstance(data.get("edges"), list) else []
-    name = flow.get("name") if isinstance(flow.get("name"), str) else ""
+    data = _as_dict(flow.get("data"))
+    nodes = data.get("nodes")
+    edges = data.get("edges")
+    name = flow.get("name")
+    nodes = nodes if isinstance(nodes, list) else []
+    edges = edges if isinstance(edges, list) else []
+    name = name if isinstance(name, str) else ""
     return {"flow": flow, "name": name, "node_count": len(nodes), "edge_count": len(edges)}
 
 
@@ -299,7 +307,7 @@ def turn_input(messages: Sequence[Message]) -> str | None:
         return None
     last = messages[-1]
     if last.role == "tool":
-        name, _args = _tool_call_for(messages, last.tool_call_id)
+        name, _args = _tool_call_for(messages, getattr(last, "tool_call_id", ""))
         answer = _json_object(last.content)
         if name == PROPOSE_PLAN and answer.get("approved") is True:
             from langflow.agentic.services.flow_types import PLAN_APPROVAL_INPUT
@@ -317,9 +325,10 @@ def turn_input(messages: Sequence[Message]) -> str | None:
         return None
     previous = messages[-2] if len(messages) > 1 else None
     if previous is not None and previous.role == "tool":
-        name, args = _tool_call_for(messages, previous.tool_call_id)
+        name, args = _tool_call_for(messages, getattr(previous, "tool_call_id", ""))
         markdown = args.get("markdown")
-        if name == PROPOSE_PLAN and _json_object(previous.content).get("refine") is True and markdown:
+        refine = _json_object(previous.content).get("refine") is True
+        if name == PROPOSE_PLAN and refine and isinstance(markdown, str) and markdown:
             return build_refinement_input(markdown, text)
     return text
 
@@ -346,8 +355,8 @@ def _message_text(content: Any) -> str:
     if isinstance(content, str):
         return content
     if isinstance(content, list):
-        texts = [getattr(part, "text", None) for part in content]
-        return "\n".join(t for t in texts if isinstance(t, str) and t)
+        texts: list[str] = [t for part in content if isinstance(t := getattr(part, "text", None), str) and t]
+        return "\n".join(texts)
     return ""
 
 
@@ -444,9 +453,8 @@ class LangflowAssistantAgent(CopilotAgent):
                     if translator.terminated:
                         return
             finally:
-                aclose = getattr(stream, "aclose", None)
-                if aclose is not None:
-                    await aclose()
+                if hasattr(stream, "aclose"):
+                    await stream.aclose()
         for event in translator.finish():
             yield event
 
