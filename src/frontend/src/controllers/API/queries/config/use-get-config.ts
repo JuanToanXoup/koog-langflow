@@ -52,6 +52,8 @@ export interface ConfigResponse extends BaseConfig {
   a2a_enabled: boolean;
   agentic_experience: boolean;
   assistant_max_message_length: number;
+  /** Mirrors LANGFLOW_COPILOTKIT_CHAT_ENABLED; absent on servers older than the CopilotKit chat. */
+  copilotkit_chat_enabled?: boolean;
   local_vector_store_available: boolean;
   /** Backend a new KB/MB lands on when none is named: postgres | opensearch | sqlite. */
   default_vector_store_backend?: string;
@@ -143,6 +145,9 @@ export const useGetConfig: useQueryFunctionType<
   const setAssistantMaxMessageLength = useUtilityStore(
     (state) => state.setAssistantMaxMessageLength,
   );
+  const setCopilotkitChatEnabled = useUtilityStore(
+    (state) => state.setCopilotkitChatEnabled,
+  );
   const setVectorStoreConfig = useUtilityStore(
     (state) => state.setVectorStoreConfig,
   );
@@ -213,6 +218,8 @@ export const useGetConfig: useQueryFunctionType<
           data.assistant_max_message_length ??
             DEFAULT_ASSISTANT_MAX_MESSAGE_LENGTH,
         );
+        // An older server has no /copilotkit routes, so a missing field means off.
+        setCopilotkitChatEnabled(data.copilotkit_chat_enabled ?? false);
         setVectorStoreConfig({
           localVectorStoreAvailable: data.local_vector_store_available ?? true,
           defaultVectorStoreBackend: data.default_vector_store_backend,

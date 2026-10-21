@@ -94,6 +94,31 @@ describe("useGetConfig", () => {
     });
   });
 
+  it.each([
+    [true, true],
+    [false, false],
+    [undefined, false],
+  ])(
+    "stores copilotkit_chat_enabled=%s from full config as %s",
+    async (reported, expected) => {
+      useUtilityStore.setState({ copilotkitChatEnabled: !expected });
+      mockApiGet.mockResolvedValue({
+        data: {
+          type: "full",
+          max_file_size_upload: 100,
+          copilotkit_chat_enabled: reported,
+        },
+      });
+
+      renderHook(() => useGetConfig());
+      await act(async () => {
+        await mockQueryFn?.();
+      });
+
+      expect(useUtilityStore.getState().copilotkitChatEnabled).toBe(expected);
+    },
+  );
+
   it("defaults trusted outdated-component substitution on for older config responses", async () => {
     useUtilityStore.setState({ substituteOutdatedComponentCode: false });
     mockApiGet.mockResolvedValue({

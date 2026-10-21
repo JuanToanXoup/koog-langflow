@@ -26,6 +26,9 @@ export const ENABLE_TRIGGERS = false;
 export const ENABLE_MCP_COMPOSER =
   import.meta.env.LANGFLOW_MCP_COMPOSER_ENABLED === "true";
 export const ENABLE_NEW_SIDEBAR = true;
+// The assistant panel is the CopilotKit chat (/api/v1/copilotkit) when this is
+// on and the server reports copilotkit_chat_enabled; otherwise the old panel.
+export const ENABLE_COPILOTKIT_CHAT = true;
 export const ENABLE_FETCH_CREDENTIALS = false;
 // Mode A only: gates the Bundle-header Reload action in the palette.  Off by
 // default until the bundle-list endpoint that populates extension_id per

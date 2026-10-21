@@ -85,6 +85,10 @@ export const useUtilityStore = create<UtilityStoreType>((set, get) => ({
   assistantMaxMessageLength: DEFAULT_ASSISTANT_MAX_MESSAGE_LENGTH,
   setAssistantMaxMessageLength: (assistantMaxMessageLength: number) =>
     set({ assistantMaxMessageLength }),
+  // Default true (backend default) so the old panel never mounts while /config loads.
+  copilotkitChatEnabled: true,
+  setCopilotkitChatEnabled: (copilotkitChatEnabled: boolean) =>
+    set({ copilotkitChatEnabled }),
   localVectorStoreAvailable: true,
   setLocalVectorStoreAvailable: (localVectorStoreAvailable: boolean) =>
     set({ localVectorStoreAvailable }),

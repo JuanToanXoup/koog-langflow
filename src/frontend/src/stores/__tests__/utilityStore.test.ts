@@ -84,6 +84,20 @@ describe("useUtilityStore", () => {
     });
   });
 
+  describe("setCopilotkitChatEnabled", () => {
+    it("should default to on and follow the server setting", () => {
+      const { result } = renderHook(() => useUtilityStore());
+
+      expect(result.current.copilotkitChatEnabled).toBe(true);
+
+      act(() => {
+        result.current.setCopilotkitChatEnabled(false);
+      });
+
+      expect(result.current.copilotkitChatEnabled).toBe(false);
+    });
+  });
+
   describe("setCatalogGovernanceEnabled", () => {
     it("should update catalog governance state", () => {
       const { result } = renderHook(() => useUtilityStore());

@@ -55,6 +55,10 @@ export type UtilityStoreType = {
   // server's cap instead of a UI-local constant that can drift below it.
   assistantMaxMessageLength: number;
   setAssistantMaxMessageLength: (assistantMaxMessageLength: number) => void;
+  // Mirror of LANGFLOW_COPILOTKIT_CHAT_ENABLED: whether /api/v1/copilotkit is served,
+  // so the assistant panel can be the CopilotKit chat.
+  copilotkitChatEnabled: boolean;
+  setCopilotkitChatEnabled: (copilotkitChatEnabled: boolean) => void;
   // False on the production deployment profile, where local SQLite is refused.
   localVectorStoreAvailable: boolean;
   setLocalVectorStoreAvailable: (localVectorStoreAvailable: boolean) => void;
