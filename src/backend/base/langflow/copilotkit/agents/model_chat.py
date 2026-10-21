@@ -70,7 +70,7 @@ async def resolve_chat_model(
         chosen = model_name if isinstance(model_name, str) and model_name else get_default_model(provider, user_id)
         return _choice(provider, chosen)
 
-    default = await _read_default_language_model(user_id, session)
+    default = await read_default_language_model(user_id, session)
     if default is not None and default.provider in enabled:
         return default
 
@@ -85,7 +85,7 @@ def _choice(provider: str, model_name: str | None) -> ChatModelChoice:
     return ChatModelChoice(provider=provider, model_name=model_name)
 
 
-async def _read_default_language_model(user_id: UUID, session: AsyncSession) -> ChatModelChoice | None:
+async def read_default_language_model(user_id: UUID, session: AsyncSession) -> ChatModelChoice | None:
     """The user's default language model from Settings, as ``GET /models/default_model`` reads it."""
     from langflow.api.v1.models import DEFAULT_LANGUAGE_MODEL_VAR
     from langflow.services.deps import get_variable_service

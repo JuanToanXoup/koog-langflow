@@ -59,6 +59,8 @@ if TYPE_CHECKING:
 
     from ag_ui.core import BaseEvent, Message, RunAgentInput
 
+    from langflow.agentic.api.schemas import AssistantRequest
+
 APPLY_FLOW_UPDATE = "apply_flow_update"
 PROPOSE_FLOW = "propose_flow"
 PROPOSE_FIELD_EDITS = "propose_field_edits"
@@ -421,6 +423,8 @@ class LangflowAssistantAgent(CopilotAgent):
             async with ctx.session_scope() as session:
                 flow = await _validate_flow_access(flow_id, ctx.user_id, session)
                 with scoped_model_provider_policy_for_flow(flow, user_id=ctx.user_id, is_superuser=ctx.is_superuser):
+                    if request.provider is None:
+                        request = await _with_default_model(request, ctx, session)
                     assistant = await _resolve_assistant_context(request, ctx.user_id, session)
         except HTTPException as exc:
             # No provider, a missing key, a flow that is not the user's: say so in
@@ -465,6 +469,26 @@ class LangflowAssistantAgent(CopilotAgent):
         from langflow.agentic.services.flow_types import LANGFLOW_ASSISTANT_FLOW
 
         return execute_flow_with_validation_streaming(LANGFLOW_ASSISTANT_FLOW, **kwargs)
+
+
+async def _with_default_model(request: AssistantRequest, ctx: AgentRunContext, session: Any) -> AssistantRequest:
+    """Use the user's default language model (Settings) when the panel picked none.
+
+    Without it the assistant falls back to the first model of the first preferred
+    provider, which is not necessarily one the user's provider can serve.
+    """
+    from lfx.services.model_provider_policy import ModelProviderPolicyPurpose
+
+    from langflow.agentic.services.provider_service import get_enabled_providers_for_user
+    from langflow.copilotkit.agents.model_chat import read_default_language_model
+
+    default = await read_default_language_model(ctx.user_id, session)
+    if default is None:
+        return request
+    enabled, _ = await get_enabled_providers_for_user(ctx.user_id, session, purpose=ModelProviderPolicyPurpose.USE)
+    if default.provider not in enabled:
+        return request
+    return request.model_copy(update={"provider": default.provider, "model_name": default.model_name})
 
 
 def _validation_message(exc: ValidationError) -> str:

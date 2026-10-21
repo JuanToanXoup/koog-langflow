@@ -429,6 +429,48 @@ class TestRunRoute:
         assert captured["iterations_limit"] == 20
         assert captured["provider"] == "OpenAI"
 
+    @pytest.mark.parametrize(
+        ("forwarded", "expected"),
+        [
+            ({}, ("OpenAI Compatible", "claude-fable-5-1")),
+            ({"provider": "Anthropic", "model_name": "claude-opus-5-5"}, ("Anthropic", "claude-opus-5-5")),
+        ],
+    )
+    async def test_should_use_the_users_default_model_unless_the_panel_picked_one(
+        self, client: AsyncClient, logged_in_headers, forwarded, expected
+    ):
+        from langflow.copilotkit.agents.model_chat import ChatModelChoice
+
+        captured = {}
+
+        async def resolve(request, _user_id, _session):
+            captured["request"] = request
+            return _assistant_ctx()
+
+        async def engine(**_kwargs):
+            yield _sse(event="complete", data={"result": "ok"})
+
+        with (
+            patch(ENGINE, new=engine),
+            patch(f"{ROUTER}._validate_flow_access", new=AsyncMock(return_value=None)),
+            patch(f"{ROUTER}._resolve_assistant_context", new=resolve),
+            patch(
+                "langflow.copilotkit.agents.model_chat.read_default_language_model",
+                new=AsyncMock(return_value=ChatModelChoice("OpenAI Compatible", "claude-fable-5-1")),
+            ),
+            patch(
+                "langflow.agentic.services.provider_service.get_enabled_providers_for_user",
+                new=AsyncMock(return_value=(["OpenAI Compatible", "Anthropic"], {})),
+            ),
+        ):
+            await client.post(
+                "api/v1/copilotkit/agent/langflow/run",
+                headers=logged_in_headers,
+                json=_body([{"id": "u", "role": "user", "content": "hi"}], **forwarded),
+            )
+
+        assert (captured["request"].provider, captured["request"].model_name) == expected
+
     async def test_should_ask_for_an_open_flow(self, client: AsyncClient, logged_in_headers):
         body = _body([{"id": "u", "role": "user", "content": "hi"}])
         body["forwardedProps"] = {}
@@ -505,6 +547,10 @@ class TestRunRoute:
         with (
             patch(f"{ROUTER}._validate_flow_access", new=AsyncMock(return_value=None)),
             patch(f"{ROUTER}._resolve_assistant_context", new=AsyncMock(return_value=_assistant_ctx())),
+            patch(
+                "langflow.copilotkit.agents.model_chat.read_default_language_model",
+                new=AsyncMock(return_value=None),
+            ),
         ):
             events = [e async for e in agent.run(run_input, ctx)]
 

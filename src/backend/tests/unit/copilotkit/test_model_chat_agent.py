@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
 PROVIDERS = "langflow.agentic.services.provider_service"
-READ_DEFAULT = "langflow.copilotkit.agents.model_chat._read_default_language_model"
+READ_DEFAULT = "langflow.copilotkit.agents.model_chat.read_default_language_model"
 
 
 class FakeStreamingModel:
@@ -228,7 +228,7 @@ class TestResolveChatModel:
         with (
             patch(f"{PROVIDERS}.get_enabled_providers_for_user", new=AsyncMock(return_value=(["Groq", "OpenAI"], {}))),
             patch(
-                "langflow.copilotkit.agents.model_chat._read_default_language_model", new=AsyncMock(return_value=None)
+                "langflow.copilotkit.agents.model_chat.read_default_language_model", new=AsyncMock(return_value=None)
             ),
             patch(f"{PROVIDERS}.get_default_model", return_value="gpt-5.4"),
         ):
